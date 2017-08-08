@@ -1,0 +1,7 @@
+F:\扩展\AllycsCRUD\AllycsCRUD\bin\Release\AllycsCRUD.xml
+F:\扩展\AllycsCRUD\AllycsCRUD\bin\Release\AllycsCRUD.dll
+F:\扩展\AllycsCRUD\AllycsCRUD\bin\Release\AllycsCRUD.pdb
+F:\扩展\AllycsCRUD\AllycsCRUD\bin\Release\Dapper.dll
+F:\扩展\AllycsCRUD\AllycsCRUD\bin\Release\Dapper.xml
+F:\扩展\AllycsCRUD\AllycsCRUD\obj\Release\AllycsCRUD.dll
+F:\扩展\AllycsCRUD\AllycsCRUD\obj\Release\AllycsCRUD.pdb

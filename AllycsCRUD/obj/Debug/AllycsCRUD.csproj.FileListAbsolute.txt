@@ -1,0 +1,7 @@
+F:\扩展\AllycsCRUD\AllycsCRUD\bin\Debug\AllycsCRUD.dll
+F:\扩展\AllycsCRUD\AllycsCRUD\bin\Debug\AllycsCRUD.pdb
+F:\扩展\AllycsCRUD\AllycsCRUD\bin\Debug\Dapper.dll
+F:\扩展\AllycsCRUD\AllycsCRUD\bin\Debug\Dapper.xml
+F:\扩展\AllycsCRUD\AllycsCRUD\obj\Debug\AllycsCRUD.dll
+F:\扩展\AllycsCRUD\AllycsCRUD\obj\Debug\AllycsCRUD.pdb
+F:\扩展\AllycsCRUD\AllycsCRUD\obj\Debug\AllycsCRUD.csprojResolveAssemblyReference.cache

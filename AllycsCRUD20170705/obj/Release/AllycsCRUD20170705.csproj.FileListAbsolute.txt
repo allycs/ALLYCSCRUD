@@ -1,0 +1,7 @@
+F:\扩展\AllycsCRUD\AllycsCRUD20170705\bin\Release\AllycsCRUD20170705.dll
+F:\扩展\AllycsCRUD\AllycsCRUD20170705\bin\Release\AllycsCRUD20170705.pdb
+F:\扩展\AllycsCRUD\AllycsCRUD20170705\obj\Release\AllycsCRUD20170705.csprojResolveAssemblyReference.cache
+F:\扩展\AllycsCRUD\AllycsCRUD20170705\obj\Release\AllycsCRUD20170705.dll
+F:\扩展\AllycsCRUD\AllycsCRUD20170705\obj\Release\AllycsCRUD20170705.pdb
+F:\扩展\AllycsCRUD\AllycsCRUD20170705\bin\Release\Dapper.dll
+F:\扩展\AllycsCRUD\AllycsCRUD20170705\bin\Release\Dapper.xml
