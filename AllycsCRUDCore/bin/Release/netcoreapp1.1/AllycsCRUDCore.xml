@@ -322,6 +322,25 @@
             <param name="sb"></param>
             <param name="props"></param>
         </member>
+        <member name="M:Dapper.AllycsCRUD.BuildInsertParameters(System.Object,System.Text.StringBuilder)">
+            <summary>
+            创建insert语句参数不包含
+            带有Editable(false)的标签
+            带有Key的标签
+            带有NotMapped的标签
+            以Id命名的
+            属性
+            </summary>
+            <param name="entityToInsert"></param>
+            <param name="sb"></param>
+        </member>
+        <member name="M:Dapper.AllycsCRUD.GetAllProperties(System.Object)">
+            <summary>
+            获取实体对象的所有属性名
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
         <member name="M:Dapper.AllycsCRUD.GetIdProperties(System.Type)">
             <summary>
             获取所有属性带有[Key]标签或者以Id命名的属性

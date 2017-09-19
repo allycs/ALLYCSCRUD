@@ -533,7 +533,7 @@
                 var property = props.ElementAt(i);
 
                 sb.Append(GetColumnName(property));
-                if (i < props.Count() - 1)
+                if (i < props.Length - 1)
                     sb.Append(", ");
             }
             if (sb.ToString().EndsWith(", "))
@@ -541,11 +541,11 @@
             sb.Append(") ");
             sb.Append("values");
             sb.Append(" (");
-            for (var i = 0; i < props.Count(); i++)
+            for (var i = 0; i < props.Length; i++)
             {
                 var property = props.ElementAt(i);
                 sb.AppendFormat("@{0}", property.Name);
-                if (i < props.Count() - 1)
+                if (i < props.Length - 1)
                     sb.Append(", ");
             }
             if (sb.ToString().EndsWith(", "))
@@ -780,8 +780,8 @@
                 name = GetTableName(currenttype);
 
             var sb = new StringBuilder();
-            sb.AppendFormat("Delete from {0}", name);
-            sb.Append(" " + conditions);
+            sb.AppendFormat("Delete from {0} ", name);
+            sb.Append(conditions);
 
             if (Debugger.IsAttached)
                 Console.WriteLine(String.Format("DeleteList<{0}> {1}", currenttype, sb));
