@@ -308,6 +308,20 @@
             <param name="commandTimeout">超时</param>
             <returns>返回影响的行数</returns>
         </member>
+        <member name="M:Dapper.AllycsCRUD.BuildUpdateSet(System.Object,System.Text.StringBuilder)">
+            <summary>
+            创建update参数可变字符串（a=1）
+            </summary>
+            <param name="entityToUpdate">实体对象</param>
+            <param name="sb">update语句可变字符串</param>
+        </member>
+        <member name="M:Dapper.AllycsCRUD.BuildSelect(System.Text.StringBuilder,System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo})">
+            <summary>
+            创建select 展示的属性字段不包含带有IgnoreSelect和NotMapped标签的属性
+            </summary>
+            <param name="sb"></param>
+            <param name="props"></param>
+        </member>
         <member name="M:Dapper.AllycsCRUD.GetIdProperties(System.Type)">
             <summary>
             获取所有属性带有[Key]标签或者以Id命名的属性

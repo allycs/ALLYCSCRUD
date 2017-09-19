@@ -168,7 +168,7 @@
 
             if (!idProps.Any())
                 throw new ArgumentException("Get<T> 仅支持实体类属性带有[Key]标签或属性名为Id");
-            if (idProps.Count() > 1)
+            if (idProps.Count > 1)
                 throw new ArgumentException("Get<T> 仅支持唯一主键（属性带有[Key]或属性名为Id的）");
 
             var onlyKey = idProps.First();
@@ -182,7 +182,7 @@
             //创建一个空的基本类型属性的新实例
             BuildSelect(sb, GetScaffoldableProperties((T)Activator.CreateInstance(typeof(T))).ToArray());
             sb.AppendFormat(" from {0}", name);
-            sb.Append(" where " + GetColumnName(onlyKey) + " = @Id");
+            sb.Append(" where ").Append(GetColumnName(onlyKey)).Append(" = @Id");
 
             var dynParms = new DynamicParameters();
             dynParms.Add("@id", id);
@@ -429,7 +429,7 @@
 
             if (!idProps.Any())
                 throw new ArgumentException("Insert<T>仅支持实体类属性带有[Key]标签或属性名为Id");
-            if (idProps.Count() > 1)
+            if (idProps.Count > 1)
                 throw new ArgumentException("Insert<T>仅支持唯一主键（属性带有[Key]或属性名为Id的");
 
             var keyHasPredefinedValue = false;
@@ -461,18 +461,18 @@
                 if (guidvalue == Guid.Empty)
                 {
                     var newguid = SequentialGuid();
-                    idProps.First().SetValue(entityToInsert, newguid, null);
+                    idProps[0].SetValue(entityToInsert, newguid, null);
                 }
                 else
                 {
                     keyHasPredefinedValue = true;
                 }
-                sb.Append(";select '" + idProps.First().GetValue(entityToInsert, null) + "' as id");
+                sb.Append(";select '").Append(idProps.First().GetValue(entityToInsert, null)).Append("' as id");
             }
 
             if ((keytype == typeof(int) || keytype == typeof(long)) && Convert.ToInt64(idProps.First().GetValue(entityToInsert, null)) == 0)
             {
-                sb.Append(";" + _getIdentitySql);
+                sb.Append(";").Append(_getIdentitySql);
             }
             else
             {
@@ -528,7 +528,7 @@
             sb.AppendFormat("insert into {0}", name);
             sb.Append(" (");
             var props = entity.GetType().GetProperties();
-            for (var i = 0; i < props.Count(); i++)
+            for (var i = 0; i < props.Length; i++)
             {
                 var property = props.ElementAt(i);
 
@@ -898,7 +898,11 @@
             }
         }
 
-        //build select clause based on list of properties skipping ones with the IgnoreSelect and NotMapped attribute
+        /// <summary>
+        /// 创建select 展示的属性字段不包含带有IgnoreSelect和NotMapped标签的属性
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="props"></param>
         private static void BuildSelect(StringBuilder sb, IEnumerable<PropertyInfo> props)
         {
             var propertyInfos = props as IList<PropertyInfo> ?? props.ToList();
@@ -910,9 +914,9 @@
                 if (addedAny)
                     sb.Append(",");
                 sb.Append(GetColumnName(propertyInfos.ElementAt(i)));
-                //if there is a custom column name add an "as customcolumnname" to the item so it maps properly
+                //如果存在自定义属性名，将把原属性值复制到带有该标签的属性上（ColumnAttribute）
                 if (propertyInfos.ElementAt(i).GetCustomAttributes(true).SingleOrDefault(attr => attr.GetType().Name == typeof(ColumnAttribute).Name) != null)
-                    sb.Append(" as " + Encapsulate(propertyInfos.ElementAt(i).Name));
+                    sb.Append(" as ").Append(Encapsulate(propertyInfos.ElementAt(i).Name));
                 addedAny = true;
             }
         }
@@ -961,7 +965,7 @@
         private static void BuildInsertValues(object entityToInsert, StringBuilder sb)
         {
             var props = GetScaffoldableProperties(entityToInsert).ToArray();
-            for (var i = 0; i < props.Count(); i++)
+            for (var i = 0; i < props.Length; i++)
             {
                 var property = props.ElementAt(i);
                 if (property.PropertyType != typeof(Guid)
@@ -975,24 +979,28 @@
                 if (property.Name.Equals("Id", StringComparison.OrdinalIgnoreCase) && property.GetCustomAttributes(true).All(attr => attr.GetType().Name != typeof(RequiredAttribute).Name) && property.PropertyType != typeof(Guid)) continue;
 
                 sb.AppendFormat("@{0}", property.Name);
-                if (i < props.Count() - 1)
+                if (i < props.Length - 1)
                     sb.Append(", ");
             }
             if (sb.ToString().EndsWith(", "))
                 sb.Remove(sb.Length - 2, 2);
         }
 
-        //build insert parameters which include all properties in the class that are not:
-        //marked with the Editable(false) attribute
-        //marked with the [Key] attribute
-        //marked with [IgnoreInsert]
-        //named Id
-        //marked with [NotMapped]
+        /// <summary>
+        /// 创建insert语句参数不包含
+        /// 带有Editable(false)的标签
+        /// 带有Key的标签
+        /// 带有NotMapped的标签
+        /// 以Id命名的
+        /// 属性
+        /// </summary>
+        /// <param name="entityToInsert"></param>
+        /// <param name="sb"></param>
         private static void BuildInsertParameters(object entityToInsert, StringBuilder sb)
         {
             var props = GetScaffoldableProperties(entityToInsert).ToArray();
 
-            for (var i = 0; i < props.Count(); i++)
+            for (var i = 0; i < props.Length; i++)
             {
                 var property = props.ElementAt(i);
                 if (property.PropertyType != typeof(Guid)
@@ -1006,14 +1014,18 @@
                 if (property.Name.Equals("Id", StringComparison.OrdinalIgnoreCase) && property.GetCustomAttributes(true).All(attr => attr.GetType().Name != typeof(RequiredAttribute).Name) && property.PropertyType != typeof(Guid)) continue;
 
                 sb.Append(GetColumnName(property));
-                if (i < props.Count() - 1)
+                if (i < props.Length - 1)
                     sb.Append(", ");
             }
             if (sb.ToString().EndsWith(", "))
                 sb.Remove(sb.Length - 2, 2);
         }
 
-        //Get all properties in an entity
+        /// <summary>
+        /// 获取实体对象的所有属性名
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         private static IEnumerable<PropertyInfo> GetAllProperties(object entity)
         {
             if (entity == null) entity = new { };
