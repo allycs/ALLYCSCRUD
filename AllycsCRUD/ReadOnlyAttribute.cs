@@ -3,14 +3,14 @@
     using System;
 
     /// <summary>
-    /// Optional Readonly attribute.
-    /// You can use the System.ComponentModel version in its place to specify the properties that are editable
+    /// 可选的制度标签
+    /// 你可以在system.componentmodel 指定属性上设置是否可编辑
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class ReadOnlyAttribute : Attribute
     {
         /// <summary>
-        /// Optional ReadOnly attribute.
+        /// 属性制度标签
         /// </summary>
         /// <param name="isReadOnly"></param>
         public ReadOnlyAttribute(bool isReadOnly)
@@ -19,7 +19,7 @@
         }
 
         /// <summary>
-        /// Does this property persist to the database?
+        /// 数据库是否沿用此属性标签
         /// </summary>
         public bool IsReadOnly { get; private set; }
     }

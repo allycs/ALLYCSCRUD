@@ -3,14 +3,13 @@
     using System;
 
     /// <summary>
-    /// Optional Table attribute.
-    /// You can use the System.ComponentModel.DataAnnotations version in its place to specify the table name of a poco
+    /// 可选的表标签
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class TableAttribute : Attribute
     {
         /// <summary>
-        /// Optional Table attribute.
+        /// 可选的表标签
         /// </summary>
         /// <param name="tableName"></param>
         public TableAttribute(string tableName)
@@ -19,12 +18,12 @@
         }
 
         /// <summary>
-        /// Name of the table
+        /// 表名
         /// </summary>
         public string Name { get; private set; }
 
         /// <summary>
-        /// Name of the schema
+        /// 结构名称
         /// </summary>
         public string Schema { get; set; }
     }

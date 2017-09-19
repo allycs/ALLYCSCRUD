@@ -4,7 +4,6 @@
 
     /// <summary>
     /// 可选的列属性
-    /// You can use the System.ComponentModel.DataAnnotations version in its place to specify the table name of a poco
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class ColumnAttribute : Attribute
