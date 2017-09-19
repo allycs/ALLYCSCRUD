@@ -831,8 +831,8 @@
 
             var sb = new StringBuilder();
             sb.Append("Select count(1)");
-            sb.AppendFormat(" from {0}", name);
-            sb.Append(" " + conditions);
+            sb.AppendFormat(" from {0} ", name);
+            sb.Append(conditions);
 
             if (Debugger.IsAttached)
                 Console.WriteLine(String.Format("RecordCount<{0}>: {1}", currenttype, sb));
@@ -933,7 +933,7 @@
                 //by converting the model type to the database column name via the column attribute
                 var propertyToUse = propertyInfos.ElementAt(i);
                 var sourceProperties = GetScaffoldableProperties(sourceEntity).ToArray();
-                for (var x = 0; x < sourceProperties.Count(); x++)
+                for (var x = 0; x < sourceProperties.Length; x++)
                 {
                     if (sourceProperties.ElementAt(x).Name == propertyInfos.ElementAt(i).Name)
                     {
@@ -951,7 +951,7 @@
                     GetColumnName(propertyToUse),
                     propertyInfos.ElementAt(i).Name);
 
-                if (i < propertyInfos.Count() - 1)
+                if (i < propertyInfos.Length - 1)
                     sb.AppendFormat(" and ");
             }
         }
