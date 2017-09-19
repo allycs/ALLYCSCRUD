@@ -869,7 +869,7 @@
         {
             var propertyInfos = props as IList<PropertyInfo> ?? props.ToList();
             var addedAny = false;
-            for (var i = 0; i < propertyInfos.Count(); i++)
+            for (var i = 0; i < propertyInfos.Count; i++)
             {
                 if (propertyInfos.ElementAt(i).GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreSelectAttribute).Name || attr.GetType().Name == typeof(NotMappedAttribute).Name)) continue;
 
@@ -886,7 +886,7 @@
         private static void BuildWhere(StringBuilder sb, IEnumerable<PropertyInfo> idProps, object sourceEntity, object whereConditions = null)
         {
             var propertyInfos = idProps.ToArray();
-            for (var i = 0; i < propertyInfos.Count(); i++)
+            for (var i = 0; i < propertyInfos.Length; i++)
             {
                 var useIsNull = false;
 
@@ -1001,7 +1001,7 @@
             var attributes = pi.GetCustomAttributes(false);
             if (attributes.Length > 0)
             {
-                dynamic write = attributes.FirstOrDefault(x => x.GetType().Name == typeof(EditableAttribute).Name);
+                dynamic write = Array.Find(attributes, x => x.GetType().Name == typeof(EditableAttribute).Name);
                 if (write != null)
                 {
                     return write.AllowEdit;
@@ -1127,7 +1127,7 @@
                     var c = chars[i];
                     if (char.IsUpper(c) && !char.IsDigit(c))
                     {
-                        sb.Append("_" + char.ToLower(c));
+                        sb.Append("_").Append(char.ToLower(c));
                     }
                     else
                     {
@@ -1144,7 +1144,7 @@
         }
 
         /// <summary>
-        /// Generates a guid based on the current date/time
+        /// 基于当前日期时间生成一个GUID
         /// http://stackoverflow.com/questions/1752004/sequential-guid-generator-c-sharp
         /// </summary>
         /// <returns></returns>

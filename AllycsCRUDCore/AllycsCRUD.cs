@@ -594,7 +594,7 @@
         {
             var idProps = GetIdProperties(entityToUpdate).ToList();
 
-            if (!idProps.Any())
+            if (!idProps.Any())//请注意Any和count的使用场景
                 throw new ArgumentException("Entity must have at least one [Key] or Id property");
 
             var name = tableName;
@@ -673,7 +673,7 @@
 
             if (!idProps.Any())
                 throw new ArgumentException("Delete<T>仅支持实体类属性带有[Key]标签或属性名为Id");
-            if (idProps.Count() > 1)
+            if (idProps.Count > 1)
                 throw new ArgumentException("Delete<T>仅支持唯一主键（属性带有[Key]或属性名为Id的");
 
             var onlyKey = idProps.First();
@@ -683,7 +683,7 @@
 
             var sb = new StringBuilder();
             sb.AppendFormat("Delete from {0}", name);
-            sb.Append(" where " + GetColumnName(onlyKey) + " = @Id");
+            sb.Append(" where ").Append(GetColumnName(onlyKey)).Append(" = @Id");
 
             var dynParms = new DynamicParameters();
             dynParms.Add("@id", id);
@@ -878,7 +878,12 @@
             return connection.ExecuteScalar<int>(sb.ToString(), whereConditions, transaction, commandTimeout);
         }
 
-        //build update statement based on list on an entity
+
+        /// <summary>
+        /// 创建update参数可变字符串（a=1）
+        /// </summary>
+        /// <param name="entityToUpdate">实体对象</param>
+        /// <param name="sb">update语句可变字符串</param>
         private static void BuildUpdateSet(object entityToUpdate, StringBuilder sb)
         {
             var nonIdProps = GetUpdateableProperties(entityToUpdate).ToArray();
@@ -898,7 +903,7 @@
         {
             var propertyInfos = props as IList<PropertyInfo> ?? props.ToList();
             var addedAny = false;
-            for (var i = 0; i < propertyInfos.Count(); i++)
+            for (var i = 0; i < propertyInfos.Count; i++)
             {
                 if (propertyInfos.ElementAt(i).GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreSelectAttribute).Name || attr.GetType().Name == typeof(NotMappedAttribute).Name)) continue;
 
@@ -915,7 +920,7 @@
         private static void BuildWhere(StringBuilder sb, IEnumerable<PropertyInfo> idProps, object sourceEntity, object whereConditions = null)
         {
             var propertyInfos = idProps.ToArray();
-            for (var i = 0; i < propertyInfos.Count(); i++)
+            for (var i = 0; i < propertyInfos.Length; i++)
             {
                 var useIsNull = false;
 
