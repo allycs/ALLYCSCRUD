@@ -19,7 +19,7 @@
             SetDialect(_dialect, _isUpToLow);
         }
 
-        private static Dialect _dialect = Dialect.SQLServer;
+        private static Dialect _dialect;
         private static readonly Populate populate = new Populate();
 
         /// <summary>
@@ -143,12 +143,12 @@
             var currenttype = typeof(T);
             var idProps = GetIdProperties(currenttype).ToList();
 
-            if (!idProps.Any())
+            if (idProps.Count == 0)
                 throw new ArgumentException("Get<T> 仅支持实体类属性带有[Key]标签或属性名为Id");
-            if (idProps.Count() > 1)
+            if (idProps.Count > 1)
                 throw new ArgumentException("Get<T> 仅支持唯一主键（属性带有[Key]或属性名为Id的");
 
-            var onlyKey = idProps.First();
+            var onlyKey = idProps[0];
 
             var name = tableName;
             if (string.IsNullOrWhiteSpace(name))
@@ -1050,16 +1050,16 @@
             return updateableProperties;
         }
 
-        //Get all properties that are named Id or have the Key attribute
-        //For Inserts and updates we have a whole entity so this method is used
+        //获取所有属性（以Id命名或者带有Key标签）
+        //对于 Inserts 和 updates 操作 我们是传入了一个完整的实体对象，所以该方法是必须的。
         private static IEnumerable<PropertyInfo> GetIdProperties(object entity)
         {
             var type = entity.GetType();
             return GetIdProperties(type);
         }
 
-        //Get all properties that are named Id or have the Key attribute
-        //For Get(id) and Delete(id) we don't have an entity, just the type so this method is used
+        //获取所有属性（以Id命名或者带有Key标签）
+        //对于Get（id）和Delete（id）方法，我们没有使用实体，而是以类型判断，所以该方法是必须的。
         private static IEnumerable<PropertyInfo> GetIdProperties(Type type)
         {
             var tp = type.GetProperties().Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(KeyAttribute).Name)).ToList();
