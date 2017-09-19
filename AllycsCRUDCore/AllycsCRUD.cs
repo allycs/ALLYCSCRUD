@@ -27,14 +27,17 @@
         /// 表名、属性名是否大小写转换（小写时候以下划线分词，类名：AaBb=>aa_bb）
         /// </summary>
         private static bool _isUpToLow = true;
+
         /// <summary>
         /// 对应数据元素封装方式
         /// </summary>
         private static string _encapsulation;
+
         /// <summary>
         /// 对应数据库自增主键获取的sql脚本
         /// </summary>
         private static string _getIdentitySql;
+
         /// <summary>
         /// 对应数据库分页的sql脚本
         /// </summary>
@@ -55,14 +58,17 @@
             /// MSSQL
             /// </summary>
             SQLServer,
+
             /// <summary>
             /// PostgresSQL
             /// </summary>
             PostgreSQL,
+
             /// <summary>
             /// SQLite
             /// </summary>
             SQLite,
+
             /// <summary>
             /// MySQL
             /// </summary>
@@ -302,6 +308,7 @@
         {
             return connection.GetList<T>(null, new { });
         }
+
         /// <summary>
         /// <para>自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
@@ -788,6 +795,7 @@
 
             return connection.Execute(sb.ToString(), parameters, transaction, commandTimeout);
         }
+
         /// <summary>
         /// <para>默认统计数据条数</para>
         /// <para>-自定义表名为空或者null取默认表名称</para>
@@ -802,8 +810,9 @@
         /// <returns>返回影响的行数</returns>
         public static int RecordCount<T>(this IDbConnection connection, IDbTransaction transaction = null, int? commandTimeout = null)
         {
-            return connection.RecordCount<T>(null,null,transaction,commandTimeout);
+            return connection.RecordCount<T>(null, null, transaction, commandTimeout);
         }
+
         /// <summary>
         /// <para>根据过滤条件统计数据条数</para>
         /// <para>-自定义表名为空或者null取默认表名称</para>
@@ -877,7 +886,6 @@
 
             return connection.ExecuteScalar<int>(sb.ToString(), whereConditions, transaction, commandTimeout);
         }
-
 
         /// <summary>
         /// 创建update参数可变字符串（a=1）
@@ -1032,7 +1040,11 @@
             return entity.GetType().GetProperties();
         }
 
-        //Get all properties that are not decorated with the Editable(false) attribute
+        /// <summary>
+        /// 获取实体对象的所有属性不包含带有Editable(false)标签的属性
+        /// </summary>
+        /// <param name="entity">实体对象</param>
+        /// <returns>IEnumerable<PropertyInfo></returns>
         private static IEnumerable<PropertyInfo> GetScaffoldableProperties(object entity)
         {
             var props = entity.GetType().GetProperties().Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(EditableAttribute).Name && !IsEditable(p)) == false);
@@ -1103,7 +1115,7 @@
             var type = entity.GetType();
             return GetIdProperties(type);
         }
-        
+
         /// <summary>
         /// 获取所有属性带有[Key]标签或者以Id命名的属性
         /// 为：Get(id) 和 Delete(id)方法提供获取主键。
@@ -1115,7 +1127,7 @@
             var tp = type.GetProperties().Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(KeyAttribute).Name)).ToList();
             return tp.Any() ? tp : type.GetProperties().Where(p => p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase));
         }
-        
+
         /// <summary>
         /// 通过对象获取表名
         /// </summary>
@@ -1126,7 +1138,7 @@
             var type = entity.GetType();
             return GetTableName(type);
         }
-        
+
         /// <summary>
         /// 通过类型获取表名
         /// </summary>
@@ -1275,5 +1287,5 @@
                 return columnName;
             }
         }
-    } 
+    }
 }

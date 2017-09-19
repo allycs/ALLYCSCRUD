@@ -341,6 +341,7 @@
             <param name="entity"></param>
             <returns></returns>
         </member>
+        <!-- 对于成员“M:Dapper.AllycsCRUD.GetScaffoldableProperties(System.Object)”忽略有格式错误的 XML 注释 -->
         <member name="M:Dapper.AllycsCRUD.GetIdProperties(System.Type)">
             <summary>
             获取所有属性带有[Key]标签或者以Id命名的属性
