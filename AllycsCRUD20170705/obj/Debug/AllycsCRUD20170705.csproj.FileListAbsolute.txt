@@ -1,7 +1,0 @@
-F:\扩展\AllycsCRUD\AllycsCRUD20170705\bin\Debug\AllycsCRUD20170705.dll
-F:\扩展\AllycsCRUD\AllycsCRUD20170705\bin\Debug\AllycsCRUD20170705.pdb
-F:\扩展\AllycsCRUD\AllycsCRUD20170705\bin\Debug\Dapper.dll
-F:\扩展\AllycsCRUD\AllycsCRUD20170705\bin\Debug\Dapper.xml
-F:\扩展\AllycsCRUD\AllycsCRUD20170705\obj\Debug\AllycsCRUD20170705.dll
-F:\扩展\AllycsCRUD\AllycsCRUD20170705\obj\Debug\AllycsCRUD20170705.pdb
-F:\扩展\AllycsCRUD\AllycsCRUD20170705\obj\Debug\AllycsCRUD20170705.csprojResolveAssemblyReference.cache

@@ -1,6 +1,5 @@
 ﻿namespace Dapper
 {
-    using Dapper;
     using Microsoft.CSharp.RuntimeBinder;
     using System;
     using System.Collections.Generic;
@@ -17,7 +16,7 @@
     {
         static AllycsCRUD()
         {
-            SetDialect(_dialect);
+            SetDialect(_dialect, _isUpToLow);
         }
 
         private static Dialect _dialect = Dialect.SQLServer;
@@ -26,13 +25,31 @@
         /// <summary>
         /// 表名、属性名是否大小写转换（小写时候以下划线分词，类名：AaBb=>aa_bb）
         /// </summary>
-        private static bool _fieldNameIsLower = true;
+        private static bool _isUpToLow = true;
 
+        /// <summary>
+        /// 对应数据元素封装方式
+        /// </summary>
         private static string _encapsulation;
+
+        /// <summary>
+        /// 对应数据库自增主键获取的sql脚本
+        /// </summary>
         private static string _getIdentitySql;
+
+        /// <summary>
+        /// 对应数据库分页的sql脚本
+        /// </summary>
         private static string _getPagedListSql;
 
+        /// <summary>
+        /// 存储表名的键值对（字典类型）
+        /// </summary>
         private static readonly IDictionary<Type, string> TableNames = new Dictionary<Type, string>();
+
+        /// <summary>
+        ///  存储字段名的键值对（字典类型）
+        /// </summary>
         private static readonly IDictionary<string, string> ColumnNames = new Dictionary<string, string>();
 
         private static ITableNameResolver _tableNameResolver = new TableNameResolver();
@@ -53,10 +70,10 @@
         /// 设置数据库类型
         /// </summary>
         /// <param name="dialect">数据库类型</param>
-        /// <param name="fieldNameIsLower">表名、属性名是否区分大小写（小写时候以下划线分词，类名：AaBb=>aa_bb）</param>
-        public static void SetDialect(Dialect dialect, bool fieldNameIsLower = true)
+        /// <param name="isUpToLow">表名、属性名是否区分大小写（小写时候以下划线分词，类名：AaBb=>aa_bb）</param>
+        public static void SetDialect(Dialect dialect, bool isUpToLow = true)
         {
-            _fieldNameIsLower = fieldNameIsLower;
+            _isUpToLow = isUpToLow;
             switch (dialect)
             {
                 case Dialect.PostgreSQL:
@@ -121,35 +138,15 @@
         /// <param name="transaction">事物</param>
         /// <param name="commandTimeout">超时</param>
         /// <returns>返回T类型的单实例</returns>
-
-        public static T Get<T>(this IDbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-            return Get<T>(connection, null, id, transaction, commandTimeout);
-        }
-
-        /// <summary>
-        /// <para>自定义表名为空或者null取默认表名称</para>
-        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
-        /// <para>默认过滤器为Id字段/para>
-        /// <para>-Id字段可以使用 [Key] 标签设定使用字段</para>
-        /// <para>支持事物和命令超时设定</para>
-        /// </summary>
-        /// <typeparam name="T">数据类型</typeparam>
-        /// <param name="connection">自连接</param>
-        /// <param name="tableName">表名</param>
-        /// <param name="id">主键</param>
-        /// <param name="transaction">事物</param>
-        /// <param name="commandTimeout">超时</param>
-        /// <returns>返回T类型的单实例</returns>
-        public static T Get<T>(this IDbConnection connection, string tableName, object id, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static T Get<T>(this IDbConnection connection, object id, string tableName = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var idProps = GetIdProperties(currenttype).ToList();
 
             if (!idProps.Any())
-                throw new ArgumentException("Get<T> only supports an entity with a [Key] or Id property");
+                throw new ArgumentException("Get<T> 仅支持实体类属性带有[Key]标签或属性名为Id");
             if (idProps.Count() > 1)
-                throw new ArgumentException("Get<T> only supports an entity with a single [Key] or Id property");
+                throw new ArgumentException("Get<T> 仅支持唯一主键（属性带有[Key]或属性名为Id的");
 
             var onlyKey = idProps.First();
 
@@ -169,12 +166,20 @@
 
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("Get<{0}>: {1} with Id: {2}", currenttype, sb, id));
-            if (_fieldNameIsLower)
+            T result;
+            if (_isUpToLow)
             {
                 var sdr = connection.ExecuteReader(sb.ToString(), dynParms, transaction, commandTimeout);
-                return populate.GetSingle<T>(sdr);
+                result = populate.GetSingle<T>(sdr);
             }
-            return connection.Query<T>(sb.ToString(), dynParms, transaction, true, commandTimeout).FirstOrDefault();
+            else
+                result = connection.Query<T>(sb.ToString(), dynParms, transaction, true, commandTimeout).FirstOrDefault();
+            if (connection != null && connection.State != ConnectionState.Closed)
+            {
+                connection.Close();
+                connection.Dispose();
+            }
+            return result;
         }
 
         /// <summary>
@@ -191,7 +196,7 @@
         /// <param name="transaction">事物</param>
         /// <param name="commandTimeout">超时</param>
         /// <returns>返回符合whereConditions的IEnumerable<T>类型</returns>
-        public static IEnumerable<T> GetList<T>(this IDbConnection connection, string tableName, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static IEnumerable<T> GetList<T>(this IDbConnection connection,  object whereConditions, string tableName = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var idProps = GetIdProperties(currenttype).ToList();
@@ -217,12 +222,20 @@
 
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("GetList<{0}>: {1}", currenttype, sb));
-            if (_fieldNameIsLower)
+            IEnumerable<T> result;
+            if (_isUpToLow)
             {
                 var sdr = connection.ExecuteReader(sb.ToString(), whereConditions, transaction, commandTimeout);
-                return populate.GetList<T>(sdr);
+                result = populate.GetList<T>(sdr);
             }
-            return connection.Query<T>(sb.ToString(), whereConditions, transaction, true, commandTimeout);
+            else
+                result = connection.Query<T>(sb.ToString(), whereConditions, transaction, true, commandTimeout);
+            if (connection != null && connection.State != ConnectionState.Closed)
+            {
+                connection.Close();
+                connection.Dispose();
+            }
+            return result;
         }
 
         /// <summary>
@@ -241,7 +254,7 @@
         /// <param name="transaction">事物</param>
         /// <param name="commandTimeout">超时</param>
         /// <returns>返回符合conditions条件和parameters过滤的IEnumerable<T>类型</returns>
-        public static IEnumerable<T> GetList<T>(this IDbConnection connection, string tableName, string conditions, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static IEnumerable<T> GetList<T>(this IDbConnection connection,  string conditions, string tableName = null, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var idProps = GetIdProperties(currenttype).ToList();
@@ -262,26 +275,22 @@
 
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("GetList<{0}>: {1}", currenttype, sb));
-            if (_fieldNameIsLower)
+            IEnumerable<T> result;
+            if (_isUpToLow)
             {
                 var sdr = connection.ExecuteReader(sb.ToString(), parameters, transaction, commandTimeout);
-                return populate.GetList<T>(sdr);
+                result = populate.GetList<T>(sdr);
             }
-            return connection.Query<T>(sb.ToString(), parameters, transaction, true, commandTimeout);
+            else
+                result = connection.Query<T>(sb.ToString(), parameters, transaction, true, commandTimeout);
+            if (connection != null && connection.State != ConnectionState.Closed)
+            {
+                connection.Close();
+                connection.Dispose();
+            }
+            return result; ;
         }
 
-        /// <summary>
-        /// <para>查询跟类名一致的表名</para>
-        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
-        /// <para>返回IEnumerable<T>类型</para>
-        /// </summary>
-        /// <typeparam name="T">数据类型</typeparam>
-        /// <param name="connection">自链接</param>
-        /// <returns>返回IEnumerable<T>类型</returns>
-        public static IEnumerable<T> GetList<T>(this IDbConnection connection)
-        {
-            return connection.GetList<T>(null, new { });
-        }
         /// <summary>
         /// <para>自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
@@ -301,7 +310,7 @@
         /// <param name="transaction">事物</param>
         /// <param name="commandTimeout">超时</param>
         /// <returns>返回符合conditions条件和parameters过滤的IEnumerable<T>类型</returns>
-        public static IEnumerable<T> GetListPaged<T>(this IDbConnection connection, string tableName, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static IEnumerable<T> GetListPaged<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, string tableName=null, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (string.IsNullOrEmpty(_getPagedListSql))
                 throw new Exception("GetListPage is not supported with the current SQL Dialect");
@@ -336,7 +345,7 @@
 
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("GetListPaged<{0}>: {1}", currenttype, query));
-            if (_fieldNameIsLower)
+            if (_isUpToLow)
             {
                 var sdr = connection.ExecuteReader(query.ToString(), parameters, transaction, commandTimeout);
                 return populate.GetList<T>(sdr);
@@ -344,29 +353,7 @@
             return connection.Query<T>(query, parameters, transaction, true, commandTimeout);
         }
 
-        /// <summary>
-        /// <para>查询跟类名一致的表名</para>
-        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
-        /// <para>conditions 使用方式: "where name='bob'" or "where age>=@Age" -非必须</para>
-        /// <para>orderby 使用方式: "lastname, age desc" -非必须 - 默认Key</para>
-        /// <para>parameters 使用方式: new { Age = 15 } -非必须</para>
-        /// <para>支持事物和命令超时设定</para>
-        /// <para>返回符合conditions条件和parameters过滤的IEnumerable<T>类型</para>
-        /// </summary>
-        /// <typeparam name="T">数据类型</typeparam>
-        /// <param name="connection">自链接</param>
-        /// <param name="pageNumber">页码</param>
-        /// <param name="rowsPerPage">每页条数</param>
-        /// <param name="conditions">SqlWhere条件</param>
-        /// <param name="orderby">排序字段</param>
-        /// <param name="parameters">参数化</param>
-        /// <param name="transaction">事物</param>
-        /// <param name="commandTimeout">超时</param>
-        /// <returns>返回符合conditions条件和parameters过滤的IEnumerable<T>类型</returns>
-        public static IEnumerable<T> GetListPaged<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-            return connection.GetListPaged<T>(null, pageNumber, rowsPerPage, conditions, orderby, parameters, transaction, commandTimeout);
-        }
+     
 
         /// <summary>
         /// <para>插入一条数据到数据库（支持简单类型）</para>
@@ -386,7 +373,7 @@
         /// <returns>返回主键Id或者自动生成的主键值</returns>
         public static int? Insert(this IDbConnection connection, object entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null)
         {
-            return Insert<int?>(connection, null, entityToInsert, transaction, commandTimeout);
+            return Insert<int?>(connection,  entityToInsert,null, transaction, commandTimeout);
         }
 
         /// <summary>
@@ -405,14 +392,14 @@
         /// <param name="transaction">事物</param>
         /// <param name="commandTimeout">超时</param>
         /// <returns>返回主键Id或者自动生成的主键值</returns>
-        public static TKey Insert<TKey>(this IDbConnection connection, string tableName, object entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static TKey Insert<TKey>(this IDbConnection connection, object entityToInsert, string tableName=null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var idProps = GetIdProperties(entityToInsert).ToList();
 
             if (!idProps.Any())
-                throw new ArgumentException("Insert<T> only supports an entity with a [Key] or Id property");
+                throw new ArgumentException("Insert<T> 仅支持实体类属性带有[Key]标签或属性名为Id");
             if (idProps.Count() > 1)
-                throw new ArgumentException("Insert<T> only supports an entity with a single [Key] or Id property");
+                throw new ArgumentException("Insert<T> 仅支持唯一主键（属性带有[Key]或属性名为Id的");
 
             var keyHasPredefinedValue = false;
             var baseType = typeof(TKey);
@@ -654,9 +641,9 @@
             var idProps = GetIdProperties(currenttype).ToList();
 
             if (!idProps.Any())
-                throw new ArgumentException("Delete<T> only supports an entity with a [Key] or Id property");
+                throw new ArgumentException("Delete<T> 仅支持实体类属性带有[Key]标签或属性名为Id");
             if (idProps.Count() > 1)
-                throw new ArgumentException("Delete<T> only supports an entity with a single [Key] or Id property");
+                throw new ArgumentException("Delete<T> 仅支持唯一主键（属性带有[Key]或属性名为Id的");
 
             var onlyKey = idProps.First();
             var name = tableName;
@@ -770,6 +757,7 @@
 
             return connection.Execute(sb.ToString(), parameters, transaction, commandTimeout);
         }
+
         /// <summary>
         /// <para>默认统计数据条数</para>
         /// <para>-自定义表名为空或者null取默认表名称</para>
@@ -784,8 +772,9 @@
         /// <returns>返回影响的行数</returns>
         public static int RecordCount<T>(this IDbConnection connection, IDbTransaction transaction = null, int? commandTimeout = null)
         {
-            return connection.RecordCount<T>(null,null,transaction,commandTimeout);
+            return connection.RecordCount<T>(null, null, transaction, commandTimeout);
         }
+
         /// <summary>
         /// <para>根据过滤条件统计数据条数</para>
         /// <para>-自定义表名为空或者null取默认表名称</para>
@@ -803,7 +792,7 @@
         /// <param name="transaction">事物</param>
         /// <param name="commandTimeout">超时</param>
         /// <returns>返回影响的行数</returns>
-        public static int RecordCount<T>(this IDbConnection connection, string tableName, string conditions, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int RecordCount<T>(this IDbConnection connection, string conditions, string tableName=null, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
 
@@ -837,7 +826,7 @@
         /// <param name="transaction">事物</param>
         /// <param name="commandTimeout">超时</param>
         /// <returns>返回影响的行数</returns>
-        public static int RecordCount<T>(this IDbConnection connection, string tableName, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int RecordCount<T>(this IDbConnection connection, object whereConditions, string tableName=null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var name = tableName;
@@ -1098,7 +1087,7 @@
                 return tableName;
 
             tableName = _tableNameResolver.ResolveTableName(type);
-            if (_fieldNameIsLower)
+            if (_isUpToLow)
                 tableName = GetFieldNameByUpperToLower(tableName);
             TableNames[type] = tableName;
 
@@ -1113,7 +1102,7 @@
                 return columnName;
 
             columnName = _columnNameResolver.ResolveColumnName(propertyInfo);
-            if (_fieldNameIsLower)
+            if (_isUpToLow)
                 columnName = GetFieldNameByUpperToLower(columnName);
             ColumnNames[key] = columnName;
 
