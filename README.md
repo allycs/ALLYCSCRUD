@@ -1,10 +1,10 @@
- Dapper.ALLYCSCRUD - allycs CRUD helpers for Dapper
+# Dapper.ALLYCSCRUD - allycs CRUD helpers for Dapper
 
- Get a single record mapped to a strongly typed object
+ ## Get a single record mapped to a strongly typed object
 `
  public static T Get<T>(this IDbConnection connection, int id)
 `
- Example basic usage:
+ ### Example basic usage:
 ```
 public class User
 {
@@ -14,10 +14,10 @@ public class User
 } 
 var user = connection.Get<User>(1);  
  ```    
- Results in executing this SQL
+## Results in executing this SQL
 
 `Select Id, Name, Age from [User] where Id = 1 `
- More complex example:
+### More complex example:
 ```
     [Table("Users")]
     public class User
@@ -32,7 +32,7 @@ var user = connection.Get<User>(1);
     
     var user = connection.Get<User>(1);  
 ```
- Results in executing this SQL
+## Results in executing this SQL
 `
 Select UserId, strFirstName as FirstName, LastName, Age from [Users] where UserId = @UserID
 `
