@@ -445,7 +445,7 @@
             var keytype = underlyingType ?? baseType;
             if (keytype != typeof(int) && keytype != typeof(uint) && keytype != typeof(long) && keytype != typeof(ulong) && keytype != typeof(short) && keytype != typeof(ushort) && keytype != typeof(Guid) && keytype != typeof(string))
             {
-                throw new Exception("Invalid return type");
+                throw new Exception("无效的返回类型");
             }
 
             var name = tableName;
@@ -601,8 +601,8 @@
         {
             var idProps = GetIdProperties(entityToUpdate).ToList();
 
-            if (!idProps.Any())//请注意Any和count的使用场景
-                throw new ArgumentException("Entity must have at least one [Key] or Id property");
+            if (!idProps.Any())
+                throw new ArgumentException("实体对象至少含有一个主键（以Id命名或者带有[Key]标签）");
 
             var name = tableName;
             if (string.IsNullOrWhiteSpace(name))
@@ -1122,8 +1122,12 @@
             return updateableProperties;
         }
 
-        //获取所有以Id命名的属性或者带有[Key]标签的属性
-        //因为insert和update 操作传入的是一个实体对象因此该方法是必须的
+        /// <summary>
+        /// 获取所有以Id命名的属性或者带有[Key]标签的属性
+        /// 因为insert和update 操作传入的是一个实体对象因此该方法是必须的
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         private static IEnumerable<PropertyInfo> GetIdProperties(object entity)
         {
             var type = entity.GetType();

@@ -159,7 +159,7 @@
             //创建一个空的基本类型属性的新实例
             BuildSelect(sb, GetScaffoldableProperties((T)Activator.CreateInstance(typeof(T))).ToArray());
             sb.AppendFormat(" from {0}", name);
-            sb.Append(" where " + GetColumnName(onlyKey) + " = @Id");
+            sb.Append(" where ").Append(GetColumnName(onlyKey)).Append(" = @Id");
 
             var dynParms = new DynamicParameters();
             dynParms.Add("@id", id);
@@ -173,7 +173,10 @@
                 result = populate.GetSingle<T>(sdr);
             }
             else
+            {
                 result = connection.Query<T>(sb.ToString(), dynParms, transaction, true, commandTimeout).FirstOrDefault();
+            }
+
             if (connection != null && connection.State != ConnectionState.Closed)
             {
                 connection.Close();
@@ -229,7 +232,10 @@
                 result = populate.GetList<T>(sdr);
             }
             else
+            {
                 result = connection.Query<T>(sb.ToString(), whereConditions, transaction, true, commandTimeout);
+            }
+
             if (connection != null && connection.State != ConnectionState.Closed)
             {
                 connection.Close();
@@ -269,9 +275,8 @@
             sb.Append("Select ");
             //创建一个空的基本类型属性的新实例
             BuildSelect(sb, GetScaffoldableProperties((T)Activator.CreateInstance(typeof(T))).ToArray());
-            sb.AppendFormat(" from {0}", name);
-
-            sb.Append(" " + conditions);
+            sb.AppendFormat(" from {0} ", name);
+            sb.Append(conditions);
 
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("GetList<{0}>: {1}", currenttype, sb));
@@ -282,7 +287,10 @@
                 result = populate.GetList<T>(sdr);
             }
             else
+            {
                 result = connection.Query<T>(sb.ToString(), parameters, transaction, true, commandTimeout);
+            }
+
             if (connection != null && connection.State != ConnectionState.Closed)
             {
                 connection.Close();
@@ -313,10 +321,10 @@
         public static IEnumerable<T> GetListPaged<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, string tableName=null, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (string.IsNullOrEmpty(_getPagedListSql))
-                throw new Exception("GetListPage is not supported with the current SQL Dialect");
+                throw new Exception("GetListPage 不支持当前sql语言");
 
             if (pageNumber < 1)
-                throw new Exception("Page must be greater than 0");
+                throw new Exception("页码从1开始");
 
             var currenttype = typeof(T);
             var idProps = GetIdProperties(currenttype).ToList();
@@ -347,7 +355,7 @@
                 Trace.WriteLine(String.Format("GetListPaged<{0}>: {1}", currenttype, query));
             if (_isUpToLow)
             {
-                var sdr = connection.ExecuteReader(query.ToString(), parameters, transaction, commandTimeout);
+                var sdr = connection.ExecuteReader(query, parameters, transaction, commandTimeout);
                 return populate.GetList<T>(sdr);
             }
             return connection.Query<T>(query, parameters, transaction, true, commandTimeout);
@@ -398,7 +406,7 @@
 
             if (!idProps.Any())
                 throw new ArgumentException("Insert<T> 仅支持实体类属性带有[Key]标签或属性名为Id");
-            if (idProps.Count() > 1)
+            if (idProps.Count > 1)
                 throw new ArgumentException("Insert<T> 仅支持唯一主键（属性带有[Key]或属性名为Id的");
 
             var keyHasPredefinedValue = false;
@@ -407,7 +415,7 @@
             var keytype = underlyingType ?? baseType;
             if (keytype != typeof(int) && keytype != typeof(uint) && keytype != typeof(long) && keytype != typeof(ulong) && keytype != typeof(short) && keytype != typeof(ushort) && keytype != typeof(Guid) && keytype != typeof(string))
             {
-                throw new Exception("Invalid return type");
+                throw new Exception("无效的返回类型");
             }
 
             var name = tableName;
@@ -430,18 +438,18 @@
                 if (guidvalue == Guid.Empty)
                 {
                     var newguid = SequentialGuid();
-                    idProps.First().SetValue(entityToInsert, newguid, null);
+                    idProps[0].SetValue(entityToInsert, newguid, null);
                 }
                 else
                 {
                     keyHasPredefinedValue = true;
                 }
-                sb.Append(";select '" + idProps.First().GetValue(entityToInsert, null) + "' as id");
+                sb.Append(";select '").Append(idProps.First().GetValue(entityToInsert, null)).Append("' as id");
             }
 
             if ((keytype == typeof(int) || keytype == typeof(long)) && Convert.ToInt64(idProps.First().GetValue(entityToInsert, null)) == 0)
             {
-                sb.Append(";" + _getIdentitySql);
+                sb.Append(";").Append(_getIdentitySql);
             }
             else
             {
@@ -455,7 +463,7 @@
 
             if (keytype == typeof(Guid) || keyHasPredefinedValue)
             {
-                return (TKey)idProps.First().GetValue(entityToInsert, null);
+                return (TKey)idProps[0].GetValue(entityToInsert, null);
             }
             return (TKey)r.First().id;
         }
@@ -473,7 +481,7 @@
         /// <returns></returns>
         public static bool Insert<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null)
         {
-            return Insert<T>(connection, null, entity, transaction, commandTimeout);
+            return Insert(connection, null, entity, transaction, commandTimeout);
         }
 
         /// <summary>
@@ -497,12 +505,12 @@
             sb.AppendFormat("insert into {0}", name);
             sb.Append(" (");
             var props = entity.GetType().GetProperties();
-            for (var i = 0; i < props.Count(); i++)
+            for (var i = 0; i < props.Length; i++)
             {
                 var property = props.ElementAt(i);
 
                 sb.Append(GetColumnName(property));
-                if (i < props.Count() - 1)
+                if (i < props.Length - 1)
                     sb.Append(", ");
             }
             if (sb.ToString().EndsWith(", "))
@@ -510,11 +518,11 @@
             sb.Append(") ");
             sb.Append("values");
             sb.Append(" (");
-            for (var i = 0; i < props.Count(); i++)
+            for (var i = 0; i < props.Length; i++)
             {
                 var property = props.ElementAt(i);
                 sb.AppendFormat("@{0}", property.Name);
-                if (i < props.Count() - 1)
+                if (i < props.Length - 1)
                     sb.Append(", ");
             }
             if (sb.ToString().EndsWith(", "))
@@ -564,7 +572,7 @@
             var idProps = GetIdProperties(entityToUpdate).ToList();
 
             if (!idProps.Any())
-                throw new ArgumentException("Entity must have at least one [Key] or Id property");
+                throw new ArgumentException("实体对象至少含有一个主键（以Id命名或者带有[Key]标签）");
 
             var name = tableName;
             if (string.IsNullOrWhiteSpace(name))
@@ -642,17 +650,17 @@
 
             if (!idProps.Any())
                 throw new ArgumentException("Delete<T> 仅支持实体类属性带有[Key]标签或属性名为Id");
-            if (idProps.Count() > 1)
+            if (idProps.Count > 1)
                 throw new ArgumentException("Delete<T> 仅支持唯一主键（属性带有[Key]或属性名为Id的");
 
-            var onlyKey = idProps.First();
+            var onlyKey = idProps[0];
             var name = tableName;
             if (string.IsNullOrWhiteSpace(name))
                 name = GetTableName(currenttype);
 
             var sb = new StringBuilder();
             sb.AppendFormat("Delete from {0}", name);
-            sb.Append(" where " + GetColumnName(onlyKey) + " = @Id");
+            sb.Append(" where ").Append(GetColumnName(onlyKey)).Append(" = @Id");
 
             var dynParms = new DynamicParameters();
             dynParms.Add("@id", id);
@@ -802,8 +810,8 @@
 
             var sb = new StringBuilder();
             sb.Append("Select count(1)");
-            sb.AppendFormat(" from {0}", name);
-            sb.Append(" " + conditions);
+            sb.AppendFormat(" from {0} ", name);
+            sb.Append(conditions);
 
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("RecordCount<{0}>: {1}", currenttype, sb));
@@ -849,7 +857,11 @@
             return connection.ExecuteScalar<int>(sb.ToString(), whereConditions, transaction, commandTimeout);
         }
 
-        //build update statement based on list on an entity
+        /// <summary>
+        /// 创建update参数可变字符串（a=1 ， b=2）
+        /// </summary>
+        /// <param name="entityToUpdate">实体对象</param>
+        /// <param name="sb">update语句可变字符串</param>
         private static void BuildUpdateSet(object entityToUpdate, StringBuilder sb)
         {
             var nonIdProps = GetUpdateableProperties(entityToUpdate).ToArray();
@@ -864,7 +876,11 @@
             }
         }
 
-        //build select clause based on list of properties skipping ones with the IgnoreSelect and NotMapped attribute
+        /// <summary>
+        /// 创建select 展示的属性字段不包含带有IgnoreSelect和NotMapped标签的属性
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="props"></param>
         private static void BuildSelect(StringBuilder sb, IEnumerable<PropertyInfo> props)
         {
             var propertyInfos = props as IList<PropertyInfo> ?? props.ToList();
@@ -876,7 +892,7 @@
                 if (addedAny)
                     sb.Append(",");
                 sb.Append(GetColumnName(propertyInfos.ElementAt(i)));
-                //if there is a custom column name add an "as customcolumnname" to the item so it maps properly
+                //如果存在自定义属性名，将把原属性值复制到带有该标签的属性上（ColumnAttribute）
                 if (propertyInfos.ElementAt(i).GetCustomAttributes(true).SingleOrDefault(attr => attr.GetType().Name == typeof(ColumnAttribute).Name) != null)
                     sb.Append(" as " + Encapsulate(propertyInfos.ElementAt(i).Name));
                 addedAny = true;
@@ -890,9 +906,9 @@
             {
                 var useIsNull = false;
 
-                //match up generic properties to source entity properties to allow fetching of the column attribute
-                //the anonymous object used for search doesn't have the custom attributes attached to them so this allows us to build the correct where clause
-                //by converting the model type to the database column name via the column attribute
+                //将泛型属性与源实体属性（可匹配的标签属性）匹配。
+                //用于条件限定的匿名对象没有实际的附加相关标签，因此我们需要构建正确的WHERE子句。
+                //通过列属性将模型类型转换为数据库列名称
                 var propertyToUse = propertyInfos.ElementAt(i);
                 var sourceProperties = GetScaffoldableProperties(sourceEntity).ToArray();
                 for (var x = 0; x < sourceProperties.Count(); x++)
@@ -918,12 +934,16 @@
             }
         }
 
-        //build insert values which include all properties in the class that are:
-        //Not named Id
-        //Not marked with the Editable(false) attribute
-        //Not marked with the [Key] attribute (without required attribute)
-        //Not marked with [IgnoreInsert]
-        //Not marked with [NotMapped]
+        /// <summary>
+        /// 创建insert插入值的sql语句包含所有的属性的对应值除了
+        /// 以Id命名的属性
+        /// 带有Editable(false)标签
+        /// 带有Key标签但是不带有Required标签
+        /// 带有IgnoreInsert标签
+        /// 带有NotMapped标签
+        /// </summary>
+        /// <param name="entityToInsert"></param>
+        /// <param name="sb"></param>
         private static void BuildInsertValues(object entityToInsert, StringBuilder sb)
         {
             var props = GetScaffoldableProperties(entityToInsert).ToArray();
@@ -948,17 +968,21 @@
                 sb.Remove(sb.Length - 2, 2);
         }
 
-        //build insert parameters which include all properties in the class that are not:
-        //marked with the Editable(false) attribute
-        //marked with the [Key] attribute
-        //marked with [IgnoreInsert]
-        //named Id
-        //marked with [NotMapped]
+        /// <summary>
+        /// 创建insert语句参数不包含
+        /// 带有Editable(false)的标签
+        /// 带有Key的标签
+        /// 带有NotMapped的标签
+        /// 以Id命名的
+        /// 属性
+        /// </summary>
+        /// <param name="entityToInsert"></param>
+        /// <param name="sb"></param>
         private static void BuildInsertParameters(object entityToInsert, StringBuilder sb)
         {
             var props = GetScaffoldableProperties(entityToInsert).ToArray();
 
-            for (var i = 0; i < props.Count(); i++)
+            for (var i = 0; i < props.Length; i++)
             {
                 var property = props.ElementAt(i);
                 if (property.PropertyType != typeof(Guid)
@@ -972,30 +996,40 @@
                 if (property.Name.Equals("Id", StringComparison.OrdinalIgnoreCase) && property.GetCustomAttributes(true).All(attr => attr.GetType().Name != typeof(RequiredAttribute).Name) && property.PropertyType != typeof(Guid)) continue;
 
                 sb.Append(GetColumnName(property));
-                if (i < props.Count() - 1)
+                if (i < props.Length - 1)
                     sb.Append(", ");
             }
             if (sb.ToString().EndsWith(", "))
                 sb.Remove(sb.Length - 2, 2);
         }
 
-        //Get all properties in an entity
+        /// <summary>
+        /// 获取实体对象的所有属性名
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         private static IEnumerable<PropertyInfo> GetAllProperties(object entity)
         {
             if (entity == null) entity = new { };
             return entity.GetType().GetProperties();
         }
 
-        //Get all properties that are not decorated with the Editable(false) attribute
+        /// <summary>
+        /// 获取实体对象的所有属性不包含带有Editable(false)标签的属性
+        /// </summary>
+        /// <param name="entity">实体对象</param>
+        /// <returns>IEnumerable<PropertyInfo></returns>
         private static IEnumerable<PropertyInfo> GetScaffoldableProperties(object entity)
         {
-            var props = entity.GetType().GetProperties().Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(EditableAttribute).Name && !IsEditable(p)) == false);
+            var props = entity.GetType().GetProperties().Where(p => !p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(EditableAttribute).Name && !IsEditable(p)));
             return props.Where(p => p.PropertyType.IsSimpleType() || IsEditable(p));
         }
 
-        //Determine if the Attribute has an AllowEdit key and return its boolean state
-        //fake the funk and try to mimick EditableAttribute in System.ComponentModel.DataAnnotations
-        //This allows use of the DataAnnotations property in the model and have the SimpleCRUD engine just figure it out without a reference
+        /// <summary>
+        /// 如果属性具有AllowEdit标签则返回它的boolean值
+        /// </summary>
+        /// <param name="pi"></param>
+        /// <returns></returns>
         private static bool IsEditable(PropertyInfo pi)
         {
             var attributes = pi.GetCustomAttributes(false);
@@ -1010,9 +1044,11 @@
             return false;
         }
 
-        //Determine if the Attribute has an IsReadOnly key and return its boolean state
-        //fake the funk and try to mimick ReadOnlyAttribute in System.ComponentModel
-        //This allows use of the DataAnnotations property in the model and have the SimpleCRUD engine just figure it out without a reference
+        /// <summary>
+        /// 如果属性具有IsReadOnly标签则返回它的boolean值
+        /// </summary>
+        /// <param name="pi">属性信息</param>
+        /// <returns>IsReadOnly的boolean值</returns>
         private static bool IsReadOnly(PropertyInfo pi)
         {
             var attributes = pi.GetCustomAttributes(false);
@@ -1027,63 +1063,77 @@
             return false;
         }
 
-        //Get all properties that are:
-        //Not named Id
-        //Not marked with the Key attribute
-        //Not marked ReadOnly
-        //Not marked IgnoreInsert
-        //Not marked NotMapped
+        /// <summary>
+        /// 获取所有属性名不包含
+        /// 以Id命名的
+        /// 带有Key标签的
+        /// 带有ReadOnly标签的
+        /// 带有Ignoreinsert标签的
+        /// 带有NotMappe标签的
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         private static IEnumerable<PropertyInfo> GetUpdateableProperties(object entity)
         {
             var updateableProperties = GetScaffoldableProperties(entity);
-            //remove ones with ID
+            //移除Id命名
             updateableProperties = updateableProperties.Where(p => !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase));
-            //remove ones with key attribute
+            //移除带有Key标签
             updateableProperties = updateableProperties.Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(KeyAttribute).Name) == false);
-            //remove ones that are readonly
+            //移除带有readonly标签
             updateableProperties = updateableProperties.Where(p => p.GetCustomAttributes(true).Any(attr => (attr.GetType().Name == typeof(ReadOnlyAttribute).Name) && IsReadOnly(p)) == false);
-            //remove ones with IgnoreUpdate attribute
+            //移除带有 IgnoreUpdate 标签
             updateableProperties = updateableProperties.Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreUpdateAttribute).Name) == false);
-            //remove ones that are not mapped
+            //移除带有NotMappe标签
             updateableProperties = updateableProperties.Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(NotMappedAttribute).Name) == false);
 
             return updateableProperties;
         }
 
-        //获取所有属性（以Id命名或者带有Key标签）
-        //对于 Inserts 和 updates 操作 我们是传入了一个完整的实体对象，所以该方法是必须的。
+        /// <summary>
+        /// 获取所有以Id命名的属性或者带有[Key]标签的属性
+        /// 因为insert和update 操作传入的是一个实体对象因此该方法是必须的
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         private static IEnumerable<PropertyInfo> GetIdProperties(object entity)
         {
             var type = entity.GetType();
             return GetIdProperties(type);
         }
 
-        //获取所有属性（以Id命名或者带有Key标签）
-        //对于Get（id）和Delete（id）方法，我们没有使用实体，而是以类型判断，所以该方法是必须的。
+        /// <summary>
+        /// 获取所有属性带有[Key]标签或者以Id命名的属性
+        /// 为：Get(id) 和 Delete(id)方法提供获取主键。
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private static IEnumerable<PropertyInfo> GetIdProperties(Type type)
         {
             var tp = type.GetProperties().Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(KeyAttribute).Name)).ToList();
             return tp.Any() ? tp : type.GetProperties().Where(p => p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase));
         }
 
-        //通过对象获取表名
-        //For Inserts and updates we have a whole entity so this method is used
-        //Uses class name by default and overrides if the class has a Table attribute
+        /// <summary>
+        /// 通过对象获取表名
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         private static string GetTableName(object entity)
         {
             var type = entity.GetType();
             return GetTableName(type);
         }
 
-        //通过类型获取表名
-        //For Get(id) and Delete(id) we don't have an entity, just the type so this method is used
-        //Use dynamic type to be able to handle both our Table-attribute and the DataAnnotation
-        //Uses class name by default and overrides if the class has a Table attribute
+        /// <summary>
+        /// 通过类型获取表名
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private static string GetTableName(Type type)
         {
-            string tableName;
 
-            if (TableNames.TryGetValue(type, out tableName))
+            if (TableNames.TryGetValue(type, out string tableName))
                 return tableName;
 
             tableName = _tableNameResolver.ResolveTableName(type);
@@ -1216,81 +1266,5 @@
                 return columnName;
             }
         }
-    }
-
-    /// <summary>
-    /// Optional Key attribute.
-    /// You can use the System.ComponentModel.DataAnnotations version in its place to specify the Primary Key of a poco
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class KeyAttribute : Attribute
-    {
-    }
-
-    /// <summary>
-    /// Optional NotMapped attribute.
-    /// You can use the System.ComponentModel.DataAnnotations version in its place to specify that the property is not mapped
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class NotMappedAttribute : Attribute
-    {
-    }
-
-    /// <summary>
-    /// Optional Key attribute.
-    /// You can use the System.ComponentModel.DataAnnotations version in its place to specify a required property of a poco
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class RequiredAttribute : Attribute
-    {
-    }
-
-    /// <summary>
-    /// Optional Editable attribute.
-    /// You can use the System.ComponentModel.DataAnnotations version in its place to specify the properties that are editable
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class EditableAttribute : Attribute
-    {
-        /// <summary>
-        /// Optional Editable attribute.
-        /// </summary>
-        /// <param name="iseditable"></param>
-        public EditableAttribute(bool iseditable)
-        {
-            AllowEdit = iseditable;
-        }
-
-        /// <summary>
-        /// Does this property persist to the database?
-        /// </summary>
-        public bool AllowEdit { get; private set; }
-    }
-
-    /// <summary>
-    /// Optional IgnoreSelect attribute.
-    /// Custom for Dapper.SimpleCRUD to exclude a property from Select methods
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class IgnoreSelectAttribute : Attribute
-    {
-    }
-
-    /// <summary>
-    /// Optional IgnoreInsert attribute.
-    /// Custom for Dapper.SimpleCRUD to exclude a property from Insert methods
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class IgnoreInsertAttribute : Attribute
-    {
-    }
-
-    /// <summary>
-    /// Optional IgnoreUpdate attribute.
-    /// Custom for Dapper.SimpleCRUD to exclude a property from Update methods
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class IgnoreUpdateAttribute : Attribute
-    {
     }
 }

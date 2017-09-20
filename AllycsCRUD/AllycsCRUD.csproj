@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllycsCRUD.cs" />
+    <Compile Include="Attribute.cs" />
     <Compile Include="ColumnAttribute.cs" />
     <Compile Include="DynamicBuilder.cs" />
     <Compile Include="Populate.cs" />
