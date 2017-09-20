@@ -406,17 +406,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="T:Dapper.ConnectionManage">
-            <summary>
-            数据库连接管理类
-            </summary>
-        </member>
-        <member name="M:Dapper.ConnectionManage.ConnClose(System.Data.IDbConnection)">
-            <summary>
-            关闭当前连接
-            </summary>
-            <param name="connection"></param>
-        </member>
         <member name="T:Dapper.ColumnAttribute">
             <summary>
             可选的列属性
@@ -432,6 +421,17 @@
             <summary>
             列名称
             </summary>
+        </member>
+        <member name="T:Dapper.ConnectionManage">
+            <summary>
+            数据库连接管理类
+            </summary>
+        </member>
+        <member name="M:Dapper.ConnectionManage.ConnClose(System.Data.IDbConnection)">
+            <summary>
+            关闭当前连接
+            </summary>
+            <param name="connection"></param>
         </member>
         <member name="T:Dapper.DBType">
             <summary>

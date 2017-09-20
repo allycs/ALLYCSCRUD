@@ -15,6 +15,7 @@
   <ItemGroup>
     <Compile Include="..\SharedLibrary\Attribute.cs" Link="Attribute.cs" />
     <Compile Include="..\SharedLibrary\ColumnAttribute.cs" Link="ColumnAttribute.cs" />
+    <Compile Include="..\SharedLibrary\ConnectionManage.cs" Link="ConnectionManage.cs" />
     <Compile Include="..\SharedLibrary\DBType.cs" Link="DBType.cs" />
     <Compile Include="..\SharedLibrary\DynamicBuilder.cs" Link="DynamicBuilder.cs" />
     <Compile Include="..\SharedLibrary\Populate.cs" Link="Populate.cs" />
