@@ -7446,11 +7446,11 @@
       "hideWarningsAndErrors": true
     },
     "restore": {
-      "projectUniqueName": "F:\\扩展\\ALLYCSCRUD\\AllycsCRUDCore\\AllycsCRUDCore.csproj",
+      "projectUniqueName": "F:\\扩展\\github\\ALLYCSCRUD\\AllycsCRUDCore\\AllycsCRUDCore.csproj",
       "projectName": "AllycsCRUDCore",
-      "projectPath": "F:\\扩展\\ALLYCSCRUD\\AllycsCRUDCore\\AllycsCRUDCore.csproj",
+      "projectPath": "F:\\扩展\\github\\ALLYCSCRUD\\AllycsCRUDCore\\AllycsCRUDCore.csproj",
       "packagesPath": "C:\\Users\\allycs\\.nuget\\packages\\",
-      "outputPath": "F:\\扩展\\ALLYCSCRUD\\AllycsCRUDCore\\obj\\",
+      "outputPath": "F:\\扩展\\github\\ALLYCSCRUD\\AllycsCRUDCore\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\allycs\\AppData\\Roaming\\NuGet\\NuGet.Config",

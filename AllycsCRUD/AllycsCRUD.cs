@@ -19,7 +19,7 @@
             SetDialect(_dialect, _isUpToLow);
         }
 
-        private static Dialect _dialect;
+        private static DBType _dialect;
         private static readonly Populate populate = new Populate();
 
         /// <summary>
@@ -54,51 +54,41 @@
 
         private static ITableNameResolver _tableNameResolver = new TableNameResolver();
         private static IColumnNameResolver _columnNameResolver = new ColumnNameResolver();
-
-        /// <summary>
-        /// 支持数据库类型
-        /// </summary>
-        public enum Dialect
-        {
-            SQLServer,
-            PostgreSQL,
-            SQLite,
-            MySQL,
-        }
+        
 
         /// <summary>
         /// 设置数据库类型
         /// </summary>
         /// <param name="dialect">数据库类型</param>
         /// <param name="isUpToLow">表名、属性名是否区分大小写（小写时候以下划线分词，类名：AaBb=>aa_bb）</param>
-        public static void SetDialect(Dialect dialect, bool isUpToLow = true)
+        public static void SetDialect(DBType dialect, bool isUpToLow = true)
         {
             _isUpToLow = isUpToLow;
             switch (dialect)
             {
-                case Dialect.PostgreSQL:
-                    _dialect = Dialect.PostgreSQL;
+                case DBType.PostgreSQL:
+                    _dialect = DBType.PostgreSQL;
                     _encapsulation = "\"{0}\"";
                     _getIdentitySql = string.Format("SELECT LASTVAL() AS id");
                     _getPagedListSql = "Select {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy} LIMIT {RowsPerPage} OFFSET (({PageNumber}-1) * {RowsPerPage})";
                     break;
 
-                case Dialect.SQLite:
-                    _dialect = Dialect.SQLite;
+                case DBType.SQLite:
+                    _dialect = DBType.SQLite;
                     _encapsulation = "\"{0}\"";
                     _getIdentitySql = string.Format("SELECT LAST_INSERT_ROWID() AS id");
                     _getPagedListSql = "Select {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy} LIMIT {RowsPerPage} OFFSET (({PageNumber}-1) * {RowsPerPage})";
                     break;
 
-                case Dialect.MySQL:
-                    _dialect = Dialect.MySQL;
+                case DBType.MySQL:
+                    _dialect = DBType.MySQL;
                     _encapsulation = "`{0}`";
                     _getIdentitySql = string.Format("SELECT LAST_INSERT_ID() AS id");
                     _getPagedListSql = "Select {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy} LIMIT {Offset},{RowsPerPage}";
                     break;
 
                 default:
-                    _dialect = Dialect.SQLServer;
+                    _dialect = DBType.SQLServer;
                     _encapsulation = "[{0}]";
                     _getIdentitySql = string.Format("SELECT CAST(SCOPE_IDENTITY()  AS BIGINT) AS [id]");
                     _getPagedListSql = "SELECT * FROM (SELECT ROW_NUMBER() OVER(ORDER BY {OrderBy}) AS PagedNumber, {SelectColumns} FROM {TableName} {WhereClause}) AS u WHERE PagedNUMBER BETWEEN (({PageNumber}-1) * {RowsPerPage} + 1) AND ({PageNumber} * {RowsPerPage})";
