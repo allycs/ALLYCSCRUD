@@ -17,7 +17,7 @@
     {
         static AllycsCRUD()
         {
-            SetDialect(_dialect, _isUpToLow);
+            SetDBType(_dialect, _isUpToLow);
         }
 
         private static DBType _dialect = DBType.PostgreSQL;
@@ -49,13 +49,12 @@
         private static ITableNameResolver _tableNameResolver = new TableNameResolver();
         private static IColumnNameResolver _columnNameResolver = new ColumnNameResolver();
 
-
         /// <summary>
         /// 设置数据库类型
         /// </summary>
         /// <param name="dialect">数据库类型</param>
         /// <param name="isUpToLow">表名、属性名是否区分大小写（小写时候以下划线分词，类名：AaBb=>aa_bb）</param>
-        public static void SetDialect(DBType dialect, bool isUpToLow = true)
+        public static void SetDBType(DBType dialect, bool isUpToLow = true)
         {
             _isUpToLow = isUpToLow;
             switch (dialect)
@@ -170,12 +169,17 @@
 
             if (Debugger.IsAttached)
                 Console.WriteLine(String.Format("Get<{0}>: {1} with Id: {2}", currenttype, sb, id));
+            T result;
             if (_isUpToLow)
             {
                 var sdr = connection.ExecuteReader(sb.ToString(), dynParms, transaction, commandTimeout);
-                return populate.GetSingle<T>(sdr);
+                result = populate.GetSingle<T>(sdr);
             }
-            return connection.Query<T>(sb.ToString(), dynParms, transaction, true, commandTimeout).FirstOrDefault();
+            else
+                result = connection.Query<T>(sb.ToString(), dynParms, transaction, true, commandTimeout).FirstOrDefault();
+
+            connection.ConnClose();
+            return result;
         }
 
         /// <summary>
@@ -218,12 +222,16 @@
 
             if (Debugger.IsAttached)
                 Console.WriteLine(String.Format("GetList<{0}>: {1}", currenttype, sb));
+            IEnumerable<T> result;
             if (_isUpToLow)
             {
                 var sdr = connection.ExecuteReader(sb.ToString(), whereConditions, transaction, commandTimeout);
-                return populate.GetList<T>(sdr);
+                result = populate.GetList<T>(sdr);
             }
-            return connection.Query<T>(sb.ToString(), whereConditions, transaction, true, commandTimeout);
+            else
+                result = connection.Query<T>(sb.ToString(), whereConditions, transaction, true, commandTimeout);
+            connection.ConnClose();
+            return result;
         }
 
         /// <summary>
@@ -257,18 +265,22 @@
             sb.Append("Select ");
             //创建一个空的基本类型属性的新实例
             BuildSelect(sb, GetScaffoldableProperties((T)Activator.CreateInstance(typeof(T))).ToArray());
-            sb.AppendFormat(" from {0}", name);
+            sb.AppendFormat(" from {0} ", name);
 
-            sb.Append(" " + conditions);
+            sb.Append(conditions);
 
             if (Debugger.IsAttached)
                 Console.WriteLine(String.Format("GetList<{0}>: {1}", currenttype, sb));
+            IEnumerable<T> result;
             if (_isUpToLow)
             {
                 var sdr = connection.ExecuteReader(sb.ToString(), parameters, transaction, commandTimeout);
-                return populate.GetList<T>(sdr);
+                result = populate.GetList<T>(sdr);
             }
-            return connection.Query<T>(sb.ToString(), parameters, transaction, true, commandTimeout);
+            else
+                result = connection.Query<T>(sb.ToString(), parameters, transaction, true, commandTimeout);
+            connection.ConnClose();
+            return result;
         }
 
         /// <summary>
@@ -1030,7 +1042,6 @@
             return props.Where(p => p.PropertyType.IsSimpleType() || IsEditable(p));
         }
 
-
         /// <summary>
         /// 如果属性具有AllowEdit标签则返回它的boolean值
         /// </summary>
@@ -1151,7 +1162,7 @@
 
             return tableName;
         }
-        
+
         private static string GetColumnName(PropertyInfo propertyInfo)
         {
             string key = string.Format("{0}.{1}", propertyInfo.DeclaringType, propertyInfo.Name);

@@ -16,7 +16,7 @@
     {
         static AllycsCRUD()
         {
-            SetDialect(_dialect, _isUpToLow);
+            SetDBType(_dialect, _isUpToLow);
         }
 
         private static DBType _dialect;
@@ -61,7 +61,7 @@
         /// </summary>
         /// <param name="dialect">数据库类型</param>
         /// <param name="isUpToLow">表名、属性名是否区分大小写（小写时候以下划线分词，类名：AaBb=>aa_bb）</param>
-        public static void SetDialect(DBType dialect, bool isUpToLow = true)
+        public static void SetDBType(DBType dialect, bool isUpToLow = true)
         {
             _isUpToLow = isUpToLow;
             switch (dialect)
@@ -114,6 +114,7 @@
             _columnNameResolver = resolver;
         }
 
+        
         /// <summary>
         /// <para>自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
@@ -167,11 +168,7 @@
                 result = connection.Query<T>(sb.ToString(), dynParms, transaction, true, commandTimeout).FirstOrDefault();
             }
 
-            if (connection != null && connection.State != ConnectionState.Closed)
-            {
-                connection.Close();
-                connection.Dispose();
-            }
+            connection.ConnClose();
             return result;
         }
 
@@ -225,12 +222,7 @@
             {
                 result = connection.Query<T>(sb.ToString(), whereConditions, transaction, true, commandTimeout);
             }
-
-            if (connection != null && connection.State != ConnectionState.Closed)
-            {
-                connection.Close();
-                connection.Dispose();
-            }
+            connection.ConnClose();
             return result;
         }
 
@@ -280,13 +272,8 @@
             {
                 result = connection.Query<T>(sb.ToString(), parameters, transaction, true, commandTimeout);
             }
-
-            if (connection != null && connection.State != ConnectionState.Closed)
-            {
-                connection.Close();
-                connection.Dispose();
-            }
-            return result; ;
+            connection.ConnClose();
+            return result;
         }
 
         /// <summary>
@@ -919,7 +906,7 @@
                     GetColumnName(propertyToUse),
                     propertyInfos.ElementAt(i).Name);
 
-                if (i < propertyInfos.Count() - 1)
+                if (i < propertyInfos.Length - 1)
                     sb.AppendFormat(" and ");
             }
         }
@@ -951,7 +938,7 @@
                 if (property.Name.Equals("Id", StringComparison.OrdinalIgnoreCase) && property.GetCustomAttributes(true).All(attr => attr.GetType().Name != typeof(RequiredAttribute).Name) && property.PropertyType != typeof(Guid)) continue;
 
                 sb.AppendFormat("@{0}", property.Name);
-                if (i < props.Count() - 1)
+                if (i < props.Length - 1)
                     sb.Append(", ");
             }
             if (sb.ToString().EndsWith(", "))

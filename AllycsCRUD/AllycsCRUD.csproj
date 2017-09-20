@@ -47,6 +47,9 @@
     <Compile Include="..\SharedLibrary\ColumnAttribute.cs">
       <Link>ColumnAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\SharedLibrary\ConnectionManage.cs">
+      <Link>ConnectionManage.cs</Link>
+    </Compile>
     <Compile Include="..\SharedLibrary\DBType.cs">
       <Link>DBType.cs</Link>
     </Compile>

@@ -29,7 +29,7 @@
             对应数据库分页的sql脚本
             </summary>
         </member>
-        <member name="M:Dapper.AllycsCRUD.SetDialect(Dapper.DBType,System.Boolean)">
+        <member name="M:Dapper.AllycsCRUD.SetDBType(Dapper.DBType,System.Boolean)">
             <summary>
             设置数据库类型
             </summary>
@@ -405,6 +405,17 @@
             http://stackoverflow.com/questions/1752004/sequential-guid-generator-c-sharp
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:Dapper.ConnectionManage">
+            <summary>
+            数据库连接管理类
+            </summary>
+        </member>
+        <member name="M:Dapper.ConnectionManage.ConnClose(System.Data.IDbConnection)">
+            <summary>
+            关闭当前连接
+            </summary>
+            <param name="connection"></param>
         </member>
         <member name="T:Dapper.ColumnAttribute">
             <summary>
