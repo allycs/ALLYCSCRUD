@@ -310,7 +310,7 @@
         </member>
         <member name="M:Dapper.AllycsCRUD.BuildUpdateSet(System.Object,System.Text.StringBuilder)">
             <summary>
-            创建update参数可变字符串（a=1）
+            创建update参数可变字符串（a=1 ， b=2）
             </summary>
             <param name="entityToUpdate">实体对象</param>
             <param name="sb">update语句可变字符串</param>
@@ -321,6 +321,18 @@
             </summary>
             <param name="sb"></param>
             <param name="props"></param>
+        </member>
+        <member name="M:Dapper.AllycsCRUD.BuildInsertValues(System.Object,System.Text.StringBuilder)">
+            <summary>
+            创建insert插入值的sql语句包含所有的属性的对应值除了
+            以Id命名的属性
+            带有Editable(false)标签
+            带有Key标签但是不带有Required标签
+            带有IgnoreInsert标签
+            带有NotMapped标签
+            </summary>
+            <param name="entityToInsert"></param>
+            <param name="sb"></param>
         </member>
         <member name="M:Dapper.AllycsCRUD.BuildInsertParameters(System.Object,System.Text.StringBuilder)">
             <summary>
@@ -342,6 +354,32 @@
             <returns></returns>
         </member>
         <!-- 对于成员“M:Dapper.AllycsCRUD.GetScaffoldableProperties(System.Object)”忽略有格式错误的 XML 注释 -->
+        <member name="M:Dapper.AllycsCRUD.IsEditable(System.Reflection.PropertyInfo)">
+            <summary>
+            如果属性具有AllowEdit标签则返回它的boolean值
+            </summary>
+            <param name="pi"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Dapper.AllycsCRUD.IsReadOnly(System.Reflection.PropertyInfo)">
+            <summary>
+            如果属性具有IsReadOnly标签则返回它的boolean值
+            </summary>
+            <param name="pi">属性信息</param>
+            <returns>IsReadOnly的boolean值</returns>
+        </member>
+        <member name="M:Dapper.AllycsCRUD.GetUpdateableProperties(System.Object)">
+            <summary>
+            获取所有属性名不包含
+            以Id命名的
+            带有Key标签的
+            带有ReadOnly标签的
+            带有Ignoreinsert标签的
+            带有NotMappe标签的
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
         <member name="M:Dapper.AllycsCRUD.GetIdProperties(System.Type)">
             <summary>
             获取所有属性带有[Key]标签或者以Id命名的属性
@@ -363,9 +401,6 @@
             </summary>
             <param name="type"></param>
             <returns></returns>
-        </member>
-        <member name="M:Dapper.AllycsCRUD.GetColumnName(System.Reflection.PropertyInfo)">
-            
         </member>
         <member name="M:Dapper.AllycsCRUD.GetFieldNameByUpperToLower(System.String)">
             <summary>

@@ -888,7 +888,7 @@
         }
 
         /// <summary>
-        /// 创建update参数可变字符串（a=1）
+        /// 创建update参数可变字符串（a=1 ， b=2）
         /// </summary>
         /// <param name="entityToUpdate">实体对象</param>
         /// <param name="sb">update语句可变字符串</param>
@@ -936,9 +936,9 @@
             {
                 var useIsNull = false;
 
-                //match up generic properties to source entity properties to allow fetching of the column attribute
-                //the anonymous object used for search doesn't have the custom attributes attached to them so this allows us to build the correct where clause
-                //by converting the model type to the database column name via the column attribute
+                //将泛型属性与源实体属性（可匹配的标签属性）匹配。
+                //用于条件限定的匿名对象没有实际的附加相关标签，因此我们需要构建正确的WHERE子句。
+                //通过列属性将模型类型转换为数据库列名称
                 var propertyToUse = propertyInfos.ElementAt(i);
                 var sourceProperties = GetScaffoldableProperties(sourceEntity).ToArray();
                 for (var x = 0; x < sourceProperties.Length; x++)
@@ -964,12 +964,16 @@
             }
         }
 
-        //build insert values which include all properties in the class that are:
-        //Not named Id
-        //Not marked with the Editable(false) attribute
-        //Not marked with the [Key] attribute (without required attribute)
-        //Not marked with [IgnoreInsert]
-        //Not marked with [NotMapped]
+        /// <summary>
+        /// 创建insert插入值的sql语句包含所有的属性的对应值除了
+        /// 以Id命名的属性
+        /// 带有Editable(false)标签
+        /// 带有Key标签但是不带有Required标签
+        /// 带有IgnoreInsert标签
+        /// 带有NotMapped标签
+        /// </summary>
+        /// <param name="entityToInsert"></param>
+        /// <param name="sb"></param>
         private static void BuildInsertValues(object entityToInsert, StringBuilder sb)
         {
             var props = GetScaffoldableProperties(entityToInsert).ToArray();
@@ -1047,17 +1051,20 @@
         /// <returns>IEnumerable<PropertyInfo></returns>
         private static IEnumerable<PropertyInfo> GetScaffoldableProperties(object entity)
         {
-            var props = entity.GetType().GetProperties().Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(EditableAttribute).Name && !IsEditable(p)) == false);
+            var props = entity.GetType().GetProperties().Where(p => !p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(EditableAttribute).Name && !IsEditable(p)));
             return props.Where(p => p.PropertyType.IsSimpleType() || IsEditable(p));
         }
 
-        //Determine if the Attribute has an AllowEdit key and return its boolean state
-        //fake the funk and try to mimick EditableAttribute in System.ComponentModel.DataAnnotations
-        //This allows use of the DataAnnotations property in the model and have the SimpleCRUD engine just figure it out without a reference
+
+        /// <summary>
+        /// 如果属性具有AllowEdit标签则返回它的boolean值
+        /// </summary>
+        /// <param name="pi"></param>
+        /// <returns></returns>
         private static bool IsEditable(PropertyInfo pi)
         {
             var attributes = pi.GetCustomAttributes(false);
-            if (attributes.Count() > 0)
+            if (attributes.Any())
             {
                 dynamic write = attributes.FirstOrDefault(x => x.GetType().Name == typeof(EditableAttribute).Name);
                 if (write != null)
@@ -1068,13 +1075,15 @@
             return false;
         }
 
-        //Determine if the Attribute has an IsReadOnly key and return its boolean state
-        //fake the funk and try to mimick ReadOnlyAttribute in System.ComponentModel
-        //This allows use of the DataAnnotations property in the model and have the SimpleCRUD engine just figure it out without a reference
+        /// <summary>
+        /// 如果属性具有IsReadOnly标签则返回它的boolean值
+        /// </summary>
+        /// <param name="pi">属性信息</param>
+        /// <returns>IsReadOnly的boolean值</returns>
         private static bool IsReadOnly(PropertyInfo pi)
         {
             var attributes = pi.GetCustomAttributes(false);
-            if (attributes.Count() > 0)
+            if (attributes.Any())
             {
                 dynamic write = attributes.FirstOrDefault(x => x.GetType().Name == typeof(ReadOnlyAttribute).Name);
                 if (write != null)
@@ -1085,31 +1094,36 @@
             return false;
         }
 
-        //Get all properties that are:
-        //Not named Id
-        //Not marked with the Key attribute
-        //Not marked ReadOnly
-        //Not marked IgnoreInsert
-        //Not marked NotMapped
+        /// <summary>
+        /// 获取所有属性名不包含
+        /// 以Id命名的
+        /// 带有Key标签的
+        /// 带有ReadOnly标签的
+        /// 带有Ignoreinsert标签的
+        /// 带有NotMappe标签的
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+
         private static IEnumerable<PropertyInfo> GetUpdateableProperties(object entity)
         {
             var updateableProperties = GetScaffoldableProperties(entity);
-            //remove ones with ID
+            //移除Id命名
             updateableProperties = updateableProperties.Where(p => !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase));
-            //remove ones with key attribute
-            updateableProperties = updateableProperties.Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(KeyAttribute).Name) == false);
-            //remove ones that are readonly
-            updateableProperties = updateableProperties.Where(p => p.GetCustomAttributes(true).Any(attr => (attr.GetType().Name == typeof(ReadOnlyAttribute).Name) && IsReadOnly(p)) == false);
-            //remove ones with IgnoreUpdate attribute
-            updateableProperties = updateableProperties.Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreUpdateAttribute).Name) == false);
-            //remove ones that are not mapped
-            updateableProperties = updateableProperties.Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(NotMappedAttribute).Name) == false);
+            //移除带有Key标签
+            updateableProperties = updateableProperties.Where(p => !p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(KeyAttribute).Name));
+            //移除带有readonly标签
+            updateableProperties = updateableProperties.Where(p => !p.GetCustomAttributes(true).Any(attr => (attr.GetType().Name == typeof(ReadOnlyAttribute).Name) && IsReadOnly(p)));
+            //移除带有 IgnoreUpdate 标签
+            updateableProperties = updateableProperties.Where(p => !p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreUpdateAttribute).Name));
+            //移除带有NotMappe标签
+            updateableProperties = updateableProperties.Where(p => !p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(NotMappedAttribute).Name));
 
             return updateableProperties;
         }
 
-        //Get all properties that are named Id or have the Key attribute
-        //For Inserts and updates we have a whole entity so this method is used
+        //获取所有以Id命名的属性或者带有[Key]标签的属性
+        //因为insert和update 操作传入的是一个实体对象因此该方法是必须的
         private static IEnumerable<PropertyInfo> GetIdProperties(object entity)
         {
             var type = entity.GetType();
@@ -1158,13 +1172,12 @@
 
             return tableName;
         }
-
-        ///
+        
         private static string GetColumnName(PropertyInfo propertyInfo)
         {
-            string columnName, key = string.Format("{0}.{1}", propertyInfo.DeclaringType, propertyInfo.Name);
+            string key = string.Format("{0}.{1}", propertyInfo.DeclaringType, propertyInfo.Name);
 
-            if (ColumnNames.TryGetValue(key, out columnName))
+            if (ColumnNames.TryGetValue(key, out string columnName))
                 return columnName;
 
             columnName = _columnNameResolver.ResolveColumnName(propertyInfo);
