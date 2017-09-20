@@ -10,3 +10,15 @@ F:\扩展\AllycsCRUD\AllycsCRUDCore\obj\Release\netcoreapp1.1\AllycsCRUDCore.pdb
 F:\扩展\AllycsCRUD\AllycsCRUDCore\bin\Release\netcoreapp1.1\AllycsCRUDCore.xml
 F:\扩展\ALLYCSCRUD\AllycsCRUDCore\obj\Release\netcoreapp1.1\AllycsCRUDCore.csproj.CoreCompileInputs.cache
 F:\扩展\ALLYCSCRUD\AllycsCRUDCore\obj\Release\netcoreapp1.1\AllycsCRUDCore.csprojResolveAssemblyReference.cache
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\bin\Release\netcoreapp1.1\Microsoft.DiaSymReader.Native.x86.dll
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\bin\Release\netcoreapp1.1\Microsoft.DiaSymReader.Native.amd64.dll
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\bin\Release\netcoreapp1.1\Microsoft.DiaSymReader.Native.arm.dll
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\bin\Release\netcoreapp1.1\AllycsCRUDCore.deps.json
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\bin\Release\netcoreapp1.1\AllycsCRUDCore.xml
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\bin\Release\netcoreapp1.1\AllycsCRUDCore.dll
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\bin\Release\netcoreapp1.1\AllycsCRUDCore.pdb
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\obj\Release\netcoreapp1.1\AllycsCRUDCore.csprojResolveAssemblyReference.cache
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\obj\Release\netcoreapp1.1\AllycsCRUDCore.csproj.CoreCompileInputs.cache
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\obj\Release\netcoreapp1.1\AllycsCRUDCore.AssemblyInfo.cs
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\obj\Release\netcoreapp1.1\AllycsCRUDCore.dll
+F:\扩展\github\ALLYCSCRUD\AllycsCRUDCore\obj\Release\netcoreapp1.1\AllycsCRUDCore.pdb

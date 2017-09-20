@@ -13,13 +13,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\AllycsCRUD\Attribute.cs" Link="Attribute.cs" />
-    <Compile Include="..\AllycsCRUD\ColumnAttribute.cs" Link="ColumnAttribute.cs" />
-    <Compile Include="..\AllycsCRUD\DynamicBuilder.cs" Link="DynamicBuilder.cs" />
-    <Compile Include="..\AllycsCRUD\Populate.cs" Link="Populate.cs" />
-    <Compile Include="..\AllycsCRUD\ReadOnlyAttribute.cs" Link="ReadOnlyAttribute.cs" />
-    <Compile Include="..\AllycsCRUD\TableAttribute.cs" Link="TableAttribute.cs" />
-    <Compile Include="..\AllycsCRUD\TypeHelper.cs" Link="TypeHelper.cs" />
+    <Compile Include="..\SharedLibrary\Attribute.cs" Link="Attribute.cs" />
+    <Compile Include="..\SharedLibrary\ColumnAttribute.cs" Link="ColumnAttribute.cs" />
+    <Compile Include="..\SharedLibrary\DBType.cs" Link="DBType.cs" />
+    <Compile Include="..\SharedLibrary\DynamicBuilder.cs" Link="DynamicBuilder.cs" />
+    <Compile Include="..\SharedLibrary\Populate.cs" Link="Populate.cs" />
+    <Compile Include="..\SharedLibrary\ReadOnlyAttribute.cs" Link="ReadOnlyAttribute.cs" />
+    <Compile Include="..\SharedLibrary\TableAttribute.cs" Link="TableAttribute.cs" />
+    <Compile Include="..\SharedLibrary\TypeHelper.cs" Link="TypeHelper.cs" />
   </ItemGroup>
 
   <ItemGroup>

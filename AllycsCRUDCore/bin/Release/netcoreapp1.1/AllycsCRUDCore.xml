@@ -29,32 +29,7 @@
             对应数据库分页的sql脚本
             </summary>
         </member>
-        <member name="T:Dapper.AllycsCRUD.Dialect">
-            <summary>
-            支持数据库类型
-            </summary>
-        </member>
-        <member name="F:Dapper.AllycsCRUD.Dialect.SQLServer">
-            <summary>
-            MSSQL
-            </summary>
-        </member>
-        <member name="F:Dapper.AllycsCRUD.Dialect.PostgreSQL">
-            <summary>
-            PostgresSQL
-            </summary>
-        </member>
-        <member name="F:Dapper.AllycsCRUD.Dialect.SQLite">
-            <summary>
-            SQLite
-            </summary>
-        </member>
-        <member name="F:Dapper.AllycsCRUD.Dialect.MySQL">
-            <summary>
-            MySQL
-            </summary>
-        </member>
-        <member name="M:Dapper.AllycsCRUD.SetDialect(Dapper.AllycsCRUD.Dialect,System.Boolean)">
+        <member name="M:Dapper.AllycsCRUD.SetDialect(Dapper.DBType,System.Boolean)">
             <summary>
             设置数据库类型
             </summary>
@@ -445,6 +420,11 @@
         <member name="P:Dapper.ColumnAttribute.Name">
             <summary>
             列名称
+            </summary>
+        </member>
+        <member name="T:Dapper.DBType">
+            <summary>
+            支持数据库类型
             </summary>
         </member>
         <member name="T:Dapper.DynamicBuilder`1">
