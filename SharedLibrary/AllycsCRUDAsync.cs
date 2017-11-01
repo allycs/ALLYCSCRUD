@@ -76,7 +76,8 @@
             }
             else
             {
-                result = (await connection.QueryAsync<T>(sb.ToString(), dynParms, transaction, commandTimeout)).FirstOrDefault();
+                var query = await connection.QueryAsync<T>(sb.ToString(), dynParms, transaction, commandTimeout);
+                result = query.FirstOrDefault();
             }
 
             connection.ConnClose();
