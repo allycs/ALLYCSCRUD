@@ -9,3 +9,4 @@ F:\扩展\ALLYCSCRUD\AllycsCRUDCore\obj\Debug\netcoreapp1.1\AllycsCRUDCore.Assem
 F:\扩展\ALLYCSCRUD\AllycsCRUDCore\obj\Debug\netcoreapp1.1\AllycsCRUDCore.AssemblyInfo.cs
 F:\扩展\ALLYCSCRUD\AllycsCRUDCore\obj\Debug\netcoreapp1.1\AllycsCRUDCore.dll
 F:\扩展\ALLYCSCRUD\AllycsCRUDCore\obj\Debug\netcoreapp1.1\AllycsCRUDCore.pdb
+F:\扩展\ALLYCSCRUD\AllycsCRUDCore\obj\Debug\netcoreapp1.1\AllycsCRUDCore.csprojResolveAssemblyReference.cache
