@@ -278,6 +278,7 @@
             <param name="commandTimeout">超时</param>
             <returns>返回T类型的单实例</returns>
         </member>
+        <!-- 对于成员“M:Dapper.AllycsCRUD.GetListAsync``1(System.Data.IDbConnection,System.Object,System.String,System.Data.IDbTransaction,System.Nullable{System.Int32})”忽略有格式错误的 XML 注释 -->
         <member name="F:Dapper.AllycsCRUD._isUpToLow">
             <summary>
             表名、属性名是否大小写转换（小写时候以下划线分词，类名：AaBb=>aa_bb）

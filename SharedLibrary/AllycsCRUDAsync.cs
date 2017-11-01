@@ -76,12 +76,67 @@
             }
             else
             {
-                var query = await connection.QueryAsync<T>(sb.ToString(), dynParms, transaction, commandTimeout);
+                var query = await connection.QueryAsync<T>(sb.ToString(), dynParms, transaction, commandTimeout); 
                 result = query.FirstOrDefault();
             }
 
             connection.ConnClose();
             return result;
         }
+
+        /// <summary>
+        /// <para>自定义表名为空或者null取默认表名称</para>
+        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
+        /// <para>whereConditions 使用方式: new {Category = 1, SubCategory=2} -非必须</para>
+        /// <para>支持事物和命令超时设定</para>
+        /// <para>返回符合whereConditions的IEnumerable<T>类型</para>
+        /// </summary>
+        /// <typeparam name="T">数据类型</typeparam>
+        /// <param name="connection">自连接</param>
+        /// <param name="tableName">表名</param>
+        /// <param name="whereConditions">过滤条件</param>
+        /// <param name="transaction">事物</param>
+        /// <param name="commandTimeout">超时</param>
+        /// <returns>返回符合whereConditions的IEnumerable<T>类型</returns>
+        public static async Task<IEnumerable<T>> GetListAsync<T>(this IDbConnection connection, object whereConditions, string tableName = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var currenttype = typeof(T);
+            var idProps = GetIdProperties(currenttype).ToList();
+            if (!idProps.Any())
+                throw new ArgumentException("实体类至少包含一个主键[Key]");
+
+            var name = tableName;
+            if (string.IsNullOrWhiteSpace(name))
+                name = GetTableName(currenttype);
+
+            var sb = new StringBuilder();
+            var whereprops = GetAllProperties(whereConditions).ToArray();
+            sb.Append("SELECT ");
+            //创建一个空的基本类型属性的新实例
+            BuildSelect(sb, GetScaffoldableProperties((T)Activator.CreateInstance(typeof(T))).ToArray());
+            sb.AppendFormat(" FROM {0}", name);
+
+            if (whereprops.Any())
+            {
+                sb.Append(" WHERE ");
+                BuildWhere(sb, whereprops, (T)Activator.CreateInstance(typeof(T)), whereConditions);
+            }
+
+            if (Debugger.IsAttached)
+                Debug.WriteLine(String.Format("GetList<{0}>: {1}", currenttype, sb));
+            IEnumerable<T> result;
+            if (_isUpToLow)
+            {
+                var sdr = await connection.ExecuteReaderAsync(sb.ToString(), whereConditions, transaction, commandTimeout);
+                result = populate.GetList<T>(sdr);
+            }
+            else
+            {
+                result = await connection.QueryAsync<T>(sb.ToString(), whereConditions, transaction, commandTimeout);
+            }
+            connection.ConnClose();
+            return result;
+        }
+
     }
 }
