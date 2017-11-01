@@ -41,6 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedLibrary\AllycsCRUD.cs">
+      <Link>AllycsCRUD.cs</Link>
+    </Compile>
     <Compile Include="..\SharedLibrary\Attribute.cs">
       <Link>Attribute.cs</Link>
     </Compile>
@@ -68,12 +71,13 @@
     <Compile Include="..\SharedLibrary\TableAttribute.cs">
       <Link>TableAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\SharedLibrary\TypeExtension.cs">
+      <Link>TypeExtension.cs</Link>
+    </Compile>
     <Compile Include="..\SharedLibrary\TypeHelper.cs">
       <Link>TypeHelper.cs</Link>
     </Compile>
-    <Compile Include="AllycsCRUD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TypeExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
