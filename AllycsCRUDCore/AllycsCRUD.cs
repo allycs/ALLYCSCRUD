@@ -63,21 +63,21 @@
                     _dialect = DBType.PostgreSQL;
                     _encapsulation = "\"{0}\"";
                     _getIdentitySql = string.Format("SELECT LASTVAL() AS id");
-                    _getPagedListSql = "Select {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy} LIMIT {RowsPerPage} OFFSET (({PageNumber}-1) * {RowsPerPage})";
+                    _getPagedListSql = "SELECT {SelectColumns} FROM {TableName} {WhereClause} ORDER BY {OrderBy} LIMIT {RowsPerPage} OFFSET (({PageNumber}-1) * {RowsPerPage})";
                     break;
 
                 case DBType.SQLite:
                     _dialect = DBType.SQLite;
                     _encapsulation = "\"{0}\"";
                     _getIdentitySql = string.Format("SELECT LAST_INSERT_ROWID() AS id");
-                    _getPagedListSql = "Select {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy} LIMIT {RowsPerPage} OFFSET (({PageNumber}-1) * {RowsPerPage})";
+                    _getPagedListSql = "SELECT {SelectColumns} FROM {TableName} {WhereClause} ORDER BY {OrderBy} LIMIT {RowsPerPage} OFFSET (({PageNumber}-1) * {RowsPerPage})";
                     break;
 
                 case DBType.MySQL:
                     _dialect = DBType.MySQL;
                     _encapsulation = "`{0}`";
                     _getIdentitySql = string.Format("SELECT LAST_INSERT_ID() AS id");
-                    _getPagedListSql = "Select {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy} LIMIT {Offset},{RowsPerPage}";
+                    _getPagedListSql = "SELECT {SelectColumns} FROM {TableName} {WhereClause} ORDER BY {OrderBy} LIMIT {Offset},{RowsPerPage}";
                     break;
 
                 default:
@@ -157,11 +157,11 @@
                 name = GetTableName(currenttype);
 
             var sb = new StringBuilder();
-            sb.Append("Select ");
+            sb.Append("SELECT ");
             //创建一个空的基本类型属性的新实例
             BuildSelect(sb, GetScaffoldableProperties((T)Activator.CreateInstance(typeof(T))).ToArray());
-            sb.AppendFormat(" from {0}", name);
-            sb.Append(" where ").Append(GetColumnName(onlyKey)).Append(" = @Id");
+            sb.AppendFormat(" FROM {0}", name);
+            sb.Append(" WHERE ").Append(GetColumnName(onlyKey)).Append(" = @Id");
 
             var dynParms = new DynamicParameters();
             dynParms.Add("@id", id);
@@ -208,14 +208,14 @@
 
             var sb = new StringBuilder();
             var whereprops = GetAllProperties(whereConditions).ToArray();
-            sb.Append("Select ");
+            sb.Append("SELECT ");
             //创建一个空的基本类型属性的新实例
             BuildSelect(sb, GetScaffoldableProperties((T)Activator.CreateInstance(typeof(T))).ToArray());
-            sb.AppendFormat(" from {0}", name);
+            sb.AppendFormat(" FROM {0}", name);
 
             if (whereprops.Any())
             {
-                sb.Append(" where ");
+                sb.Append(" WHERE ");
                 BuildWhere(sb, whereprops, (T)Activator.CreateInstance(typeof(T)), whereConditions);
             }
 
@@ -236,7 +236,7 @@
         /// <summary>
         /// <para>自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
-        /// <para>conditions 使用方式: "where name='bob'" or "where age>=@Age" -非必须</para>
+        /// <para>conditions 使用方式: "WHERE name='bob'" or "WHERE age>=@Age" -非必须</para>
         /// <para>parameters 使用方式: new { Age = 15 } -非必须</para>
         /// <para>支持事物和命令超时设定</para>
         /// <para>返回符合conditions条件和parameters过滤的IEnumerable<T>类型</para>
@@ -261,10 +261,10 @@
                 name = GetTableName(currenttype);
 
             var sb = new StringBuilder();
-            sb.Append("Select ");
+            sb.Append("SELECT ");
             //创建一个空的基本类型属性的新实例
             BuildSelect(sb, GetScaffoldableProperties((T)Activator.CreateInstance(typeof(T))).ToArray());
-            sb.AppendFormat(" from {0} ", name);
+            sb.AppendFormat(" FROM {0} ", name);
 
             sb.Append(conditions);
 
@@ -298,7 +298,7 @@
         /// <summary>
         /// <para>自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
-        /// <para>conditions 使用方式: "where name='bob'" or "where age>=@Age" -非必须</para>
+        /// <para>conditions 使用方式: "WHERE name='bob'" or "WHERE age>=@Age" -非必须</para>
         /// <para>orderby 使用方式: "lastname, age desc" -非必须 - 默认Key</para>
         /// <para>parameters 使用方式: new { Age = 15 } -非必须</para>
         /// <para>支持事物和命令超时设定</para>
@@ -360,7 +360,7 @@
         /// <summary>
         /// <para>查询跟类名一致的表名</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
-        /// <para>conditions 使用方式: "where name='bob'" or "where age>=@Age" -非必须</para>
+        /// <para>conditions 使用方式: "WHERE name='bob'" or "WHERE age>=@Age" -非必须</para>
         /// <para>orderby 使用方式: "lastname, age desc" -非必须 - 默认Key</para>
         /// <para>parameters 使用方式: new { Age = 15 } -非必须</para>
         /// <para>支持事物和命令超时设定</para>
@@ -439,7 +439,7 @@
                 name = GetTableName(entityToInsert);
 
             var sb = new StringBuilder();
-            sb.AppendFormat("insert into {0}", name);
+            sb.AppendFormat("INSERT into {0}", name);
             sb.Append(" (");
             BuildInsertParameters(entityToInsert, sb);
             sb.Append(") ");
@@ -518,7 +518,7 @@
             if (string.IsNullOrWhiteSpace(name))
                 name = GetTableName(entity);
             var sb = new StringBuilder();
-            sb.AppendFormat("insert into {0}", name);
+            sb.AppendFormat("INSERT into {0}", name);
             sb.Append(" (");
             var props = entity.GetType().GetProperties();
             for (var i = 0; i < props.Length; i++)
@@ -599,7 +599,7 @@
 
             sb.AppendFormat(" set ");
             BuildUpdateSet(entityToUpdate, sb);
-            sb.Append(" where ");
+            sb.Append(" WHERE ");
             BuildWhere(sb, idProps, entityToUpdate);
 
             if (Debugger.IsAttached)
@@ -634,9 +634,9 @@
                 name = GetTableName(entityToDelete);
 
             var sb = new StringBuilder();
-            sb.AppendFormat("delete from {0}", name);
+            sb.AppendFormat("delete FROM {0}", name);
 
-            sb.Append(" where ");
+            sb.Append(" WHERE ");
             BuildWhere(sb, idProps, entityToDelete);
 
             if (Debugger.IsAttached)
@@ -675,8 +675,8 @@
                 name = GetTableName(currenttype);
 
             var sb = new StringBuilder();
-            sb.AppendFormat("Delete from {0}", name);
-            sb.Append(" where ").Append(GetColumnName(onlyKey)).Append(" = @Id");
+            sb.AppendFormat("Delete FROM {0}", name);
+            sb.Append(" WHERE ").Append(GetColumnName(onlyKey)).Append(" = @Id");
 
             var dynParms = new DynamicParameters();
             dynParms.Add("@id", id);
@@ -730,10 +730,10 @@
 
             var sb = new StringBuilder();
             var whereprops = GetAllProperties(whereConditions).ToArray();
-            sb.AppendFormat("Delete from {0}", name);
+            sb.AppendFormat("Delete FROM {0}", name);
             if (whereprops.Any())
             {
-                sb.Append(" where ");
+                sb.Append(" WHERE ");
                 BuildWhere(sb, whereprops, (T)Activator.CreateInstance(typeof(T)));
             }
 
@@ -747,7 +747,7 @@
         /// <para>删除符合过滤条件的一系列数据</para>
         /// <para>-自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
-        /// <para>conditions 使用方式: "where name='bob'" or "where age>=@Age" -非必须</para>
+        /// <para>conditions 使用方式: "WHERE name='bob'" or "WHERE age>=@Age" -非必须</para>
         /// <para>parameters 使用方式: new { Age = 15 } -非必须</para>
         /// <para>返回影响的行数</para>
         /// <para>支持事物和命令超时设定</para>
@@ -773,7 +773,7 @@
                 name = GetTableName(currenttype);
 
             var sb = new StringBuilder();
-            sb.AppendFormat("Delete from {0} ", name);
+            sb.AppendFormat("Delete FROM {0} ", name);
             sb.Append(conditions);
 
             if (Debugger.IsAttached)
@@ -803,7 +803,7 @@
         /// <para>根据过滤条件统计数据条数</para>
         /// <para>-自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
-        /// <para>conditions 使用方式: "where name='bob'" or "where age>=@Age" -非必须</para>
+        /// <para>conditions 使用方式: "WHERE name='bob'" or "WHERE age>=@Age" -非必须</para>
         /// <para>parameters 使用方式: new { Age = 15 } -非必须</para>
         /// <para>返回影响的行数</para>
         /// <para>支持事物和命令超时设定</para>
@@ -825,8 +825,8 @@
                 name = GetTableName(currenttype);
 
             var sb = new StringBuilder();
-            sb.Append("Select count(1)");
-            sb.AppendFormat(" from {0} ", name);
+            sb.Append("SELECT COUNT(1)");
+            sb.AppendFormat(" FROM {0} ", name);
             sb.Append(conditions);
 
             if (Debugger.IsAttached)
@@ -859,11 +859,11 @@
 
             var sb = new StringBuilder();
             var whereprops = GetAllProperties(whereConditions).ToArray();
-            sb.Append("Select count(1)");
-            sb.AppendFormat(" from {0}", name);
+            sb.Append("SELECT COUNT(1)");
+            sb.AppendFormat(" FROM {0}", name);
             if (whereprops.Any())
             {
-                sb.Append(" where ");
+                sb.Append(" WHERE ");
                 BuildWhere(sb, whereprops, (T)Activator.CreateInstance(typeof(T)));
             }
 
@@ -951,7 +951,7 @@
         }
 
         /// <summary>
-        /// 创建insert插入值的sql语句包含所有的属性的对应值除了
+        /// 创建INSERT插入值的sql语句包含所有的属性的对应值除了
         /// 以Id命名的属性
         /// 带有Editable(false)标签
         /// 带有Key标签但是不带有Required标签
@@ -985,7 +985,7 @@
         }
 
         /// <summary>
-        /// 创建insert语句参数不包含
+        /// 创建INSERT语句参数不包含
         /// 带有Editable(false)的标签
         /// 带有Key的标签
         /// 带有NotMapped的标签
@@ -1084,7 +1084,7 @@
         /// 以Id命名的
         /// 带有Key标签的
         /// 带有ReadOnly标签的
-        /// 带有Ignoreinsert标签的
+        /// 带有IgnoreInsert标签的
         /// 带有NotMappe标签的
         /// </summary>
         /// <param name="entity"></param>
@@ -1109,7 +1109,7 @@
 
         /// <summary>
         /// 获取所有以Id命名的属性或者带有[Key]标签的属性
-        /// 因为insert和update 操作传入的是一个实体对象因此该方法是必须的
+        /// 因为INSERT和update 操作传入的是一个实体对象因此该方法是必须的
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
