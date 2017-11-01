@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <Compile Include="..\SharedLibrary\AllycsCRUD.cs" Link="AllycsCRUD.cs" />
+    <Compile Include="..\SharedLibrary\AllycsCRUDAsync.cs" Link="AllycsCRUDAsync.cs" />
     <Compile Include="..\SharedLibrary\Attribute.cs" Link="Attribute.cs" />
     <Compile Include="..\SharedLibrary\Base.cs" Link="Base.cs" />
     <Compile Include="..\SharedLibrary\ColumnAttribute.cs" Link="ColumnAttribute.cs" />

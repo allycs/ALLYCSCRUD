@@ -44,6 +44,9 @@
     <Compile Include="..\SharedLibrary\AllycsCRUD.cs">
       <Link>AllycsCRUD.cs</Link>
     </Compile>
+    <Compile Include="..\SharedLibrary\AllycsCRUDAsync.cs">
+      <Link>AllycsCRUDAsync.cs</Link>
+    </Compile>
     <Compile Include="..\SharedLibrary\Attribute.cs">
       <Link>Attribute.cs</Link>
     </Compile>
