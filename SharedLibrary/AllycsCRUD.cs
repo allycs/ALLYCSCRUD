@@ -14,8 +14,7 @@
     /// </summary>
     public static partial class AllycsCRUD
     {
-
-
+    
         /// <summary>
         /// <para>自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
@@ -250,9 +249,7 @@
         /// <para>支持事物和命令超时设定</para>
         /// <para>返回主键Id或者自动生成的主键值</para>
         /// </summary>
-        /// <typeparam name="TKey">主键类型</typeparam>
         /// <param name="connection">自连接</param>
-        /// <param name="tableName">表名</param>
         /// <param name="entityToInsert">插入的实体对象</param>
         /// <param name="transaction">事物</param>
         /// <param name="commandTimeout">超时</param>
