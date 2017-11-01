@@ -110,13 +110,12 @@
         /// <summary>
         /// <para>自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
-        /// <para>默认过滤器为Id字段/para>
+        /// <para>默认过滤器为Id字段</para>
         /// <para>-Id字段可以使用 [Key] 标签设定使用字段</para>
         /// <para>支持事物和命令超时设定</para>
         /// </summary>
         /// <typeparam name="T">数据类型</typeparam>
         /// <param name="connection">自连接</param>
-        /// <param name="tableName">表名</param>
         /// <param name="id">主键</param>
         /// <param name="transaction">事物</param>
         /// <param name="commandTimeout">超时</param>
@@ -130,7 +129,7 @@
         /// <summary>
         /// <para>自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
-        /// <para>默认过滤器为Id字段/para>
+        /// <para>默认过滤器为Id字段</para>
         /// <para>-Id字段可以使用 [Key] 标签设定使用字段</para>
         /// <para>支持事物和命令超时设定</para>
         /// </summary>
