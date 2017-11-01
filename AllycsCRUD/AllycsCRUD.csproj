@@ -44,6 +44,9 @@
     <Compile Include="..\SharedLibrary\Attribute.cs">
       <Link>Attribute.cs</Link>
     </Compile>
+    <Compile Include="..\SharedLibrary\Base.cs">
+      <Link>Base.cs</Link>
+    </Compile>
     <Compile Include="..\SharedLibrary\ColumnAttribute.cs">
       <Link>ColumnAttribute.cs</Link>
     </Compile>

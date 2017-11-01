@@ -13,3 +13,4 @@ F:\扩展\github\ALLYCSCRUD\AllycsCRUD\obj\Release\AllycsCRUD.csprojResolveAssem
 F:\扩展\github\ALLYCSCRUD\AllycsCRUD\obj\Release\AllycsCRUD.csproj.CoreCompileInputs.cache
 F:\扩展\github\ALLYCSCRUD\AllycsCRUD\obj\Release\AllycsCRUD.dll
 F:\扩展\github\ALLYCSCRUD\AllycsCRUD\obj\Release\AllycsCRUD.pdb
+F:\扩展\ALLYCSCRUD\AllycsCRUD\obj\Release\AllycsCRUD.csprojResolveAssemblyReference.cache
