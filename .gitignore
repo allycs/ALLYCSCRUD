@@ -1,10 +1,6 @@
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
-/bin/
-/obj/
-[Bb]in/
-[Oo]bj/
-bin/
-obj/
+![Bb]in/
+![Oo]bj/
 
 # mstest test results
 TestResults
@@ -120,5 +116,3 @@ UpgradeLog*.XML
 /.vs/AllycsCRUD/v15/sqlite3/*.lock
 /.vs/AllycsCRUD/v15/sqlite3/*.ide-shm
 /.vs/AllycsCRUD/v15/sqlite3/*.ide-wal
-/AllycsCrud/bin/
-/AllycsCrudCore/bing/
