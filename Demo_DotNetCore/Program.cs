@@ -9,7 +9,7 @@ namespace Demo_DotNetCore
         {
             var token = "token";
             var userId = "userId";
-            var members = DbHelper.CreateConnection().GetList<Member>("dt_customer", new { token = token, uid = userId });
+            var members = DbHelper.CreateConnection().GetList<Member>(new { token="Token",uid="UserId"},"dt_customer");
             foreach (var item in members)
             {
                 Console.WriteLine(item.Nickname);
