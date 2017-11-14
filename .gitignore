@@ -3,7 +3,8 @@
 /obj/
 [Bb]in/
 [Oo]bj/
-
+bin/
+obj/
 
 # mstest test results
 TestResults
@@ -119,3 +120,5 @@ UpgradeLog*.XML
 /.vs/AllycsCRUD/v15/sqlite3/*.lock
 /.vs/AllycsCRUD/v15/sqlite3/*.ide-shm
 /.vs/AllycsCRUD/v15/sqlite3/*.ide-wal
+/AllycsCrud/bin/
+/AllycsCrudCore/bing/
