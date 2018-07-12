@@ -1,6 +1,5 @@
 ﻿namespace Dapper
 {
-    using Microsoft.CSharp.RuntimeBinder;
     using System;
     using System.Collections.Generic;
     using System.Data;
@@ -14,7 +13,6 @@
     /// </summary>
     public static partial class AllycsCRUD
     {
-    
         /// <summary>
         /// <para>自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
@@ -237,8 +235,6 @@
             }
             return connection.Query<T>(query, parameters, transaction, true, commandTimeout);
         }
-
-
 
         /// <summary>
         /// <para>插入一条数据到数据库（支持简单类型）</para>
@@ -463,7 +459,6 @@
 
             if (Debugger.IsAttached)
                 Debug.WriteLine(String.Format("Update: {0}", sb));
-
             return connection.Execute(sb.ToString(), entityToUpdate, transaction, commandTimeout);
         }
 
