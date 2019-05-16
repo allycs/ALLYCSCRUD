@@ -16,12 +16,14 @@
     {
         static AllycsCRUD()
         {
-            SetDBType(_dialect, _isUpToLow);
+            SetDBType(_dialect, _schema, _hasSchema, _isUpToLow);
         }
 
         private static DBType _dialect;
         private static readonly Populate populate = new Populate();
 
+        private static bool _hasSchema = false;
+        private static string _schema;
         /// <summary>
         /// 表名、属性名是否大小写转换（小写时候以下划线分词，类名：AaBb=>aa_bb）
         /// </summary>
@@ -61,8 +63,13 @@
         /// </summary>
         /// <param name="dialect">数据库类型</param>
         /// <param name="isUpToLow">表名、属性名是否区分大小写（小写时候以下划线分词，类名：AaBb=>aa_bb）</param>
-        public static void SetDBType(DBType dialect, bool isUpToLow = true)
+        public static void SetDBType(DBType dialect, string schema, bool hasSchema = false, bool isUpToLow = true)
         {
+            if (hasSchema)
+            {
+                _hasSchema = hasSchema;
+                _schema = schema;
+            }
             _isUpToLow = isUpToLow;
             switch (dialect)
             {
@@ -422,6 +429,8 @@
             tableName = _tableNameResolver.ResolveTableName(type);
             if (_isUpToLow)
                 tableName = GetFieldNameByUpperToLower(tableName);
+            if (_hasSchema)
+                tableName = _schema + "." + tableName;
             TableNames[type] = tableName;
 
             return tableName;
