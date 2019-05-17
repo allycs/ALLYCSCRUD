@@ -446,6 +446,8 @@
             columnName = _columnNameResolver.ResolveColumnName(propertyInfo);
             if (_isUpToLow)
                 columnName = GetFieldNameByUpperToLower(columnName);
+            //if (_hasSchema)
+            //    columnName = _schema + "." + columnName;
             ColumnNames[key] = columnName;
 
             return columnName;
