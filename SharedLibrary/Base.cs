@@ -426,7 +426,7 @@
             if (TableNames.TryGetValue(type, out string tableName))
                 return tableName;
 
-            tableName = _tableNameResolver.ResolveTableName(type);
+            tableName = _tableNameResolver.ResolveTableName(type); 
             if (_isUpToLow)
                 tableName = GetFieldNameByUpperToLower(tableName);
             if (_hasSchema)
