@@ -16,14 +16,14 @@
     {
         static AllycsCRUD()
         {
-            SetDBType(_dialect, _schema, _hasSchema, _isUpToLow);
+            SetDBType();
         }
 
         private static DBType _dialect;
         private static readonly Populate populate = new Populate();
 
         private static bool _hasSchema = false;
-        private static string _schema;
+        private static string _schema = null;
         /// <summary>
         /// 表名、属性名是否大小写转换（小写时候以下划线分词，类名：AaBb=>aa_bb）
         /// </summary>
@@ -56,22 +56,30 @@
 
         private static ITableNameResolver _tableNameResolver = new TableNameResolver();
         private static IColumnNameResolver _columnNameResolver = new ColumnNameResolver();
-
+        /// <summary>
+        /// 初始化AllycsCRUD配置参数(默认dialect=SQLServer;schema=null,isUpToLow=true)
+        /// </summary>
+        /// <param name="dialect">数据库类型SQLServer；PostgreSQL；SQLite；MySQL</param>
+        /// <param name="schema">默认无</param>
+        /// <param name="isUpToLow">配置属性以及表明对应大小写转换（ture: AaBb=>aa_bb）</param>
+        public static void InitSettings(DBType dialect = DBType.SQLServer, string schema = null, bool isUpToLow = true)
+        {
+            _dialect = dialect;
+            if (!string.IsNullOrWhiteSpace(schema))
+            {
+                _hasSchema = true;
+                _schema = schema;
+            }
+            _isUpToLow = isUpToLow;
+        }
 
         /// <summary>
         /// 设置数据库类型
         /// </summary>
-        /// <param name="dialect">数据库类型</param>
-        /// <param name="isUpToLow">表名、属性名是否区分大小写（小写时候以下划线分词，类名：AaBb=>aa_bb）</param>
-        public static void SetDBType(DBType dialect, string schema, bool hasSchema = false, bool isUpToLow = true)
+       
+        private static void SetDBType()
         {
-            if (hasSchema)
-            {
-                _hasSchema = hasSchema;
-                _schema = schema;
-            }
-            _isUpToLow = isUpToLow;
-            switch (dialect)
+            switch (_dialect)
             {
                 case DBType.PostgreSQL:
                     _dialect = DBType.PostgreSQL;
@@ -391,7 +399,7 @@
 
             return props.Where(p => p.PropertyType.IsSimpleType() || IsEditable(p));
         }
-        
+
         /// <summary>
         /// 获取所有属性带有[Key]标签或者以Id命名的属性
         /// 为：Get(id) 和 Delete(id)方法提供获取主键。
@@ -426,7 +434,7 @@
             if (TableNames.TryGetValue(type, out string tableName))
                 return tableName;
 
-            tableName = _tableNameResolver.ResolveTableName(type); 
+            tableName = _tableNameResolver.ResolveTableName(type);
             if (_isUpToLow)
                 tableName = GetFieldNameByUpperToLower(tableName);
             if (_hasSchema)
