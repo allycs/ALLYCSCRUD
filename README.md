@@ -1,4 +1,6 @@
-# Dapper.ALLYCSCRUD - allycs CRUD helpers for Dapper
+# Dapper.ALLYCSCRUD - 基于Dapper的应用级扩展
+
+- 中文文档待补充代码全中文注释等不及可以直接看代码
 
  ## Get a single record mapped to a strongly typed object
 `
