@@ -297,7 +297,7 @@
             sb.Append(" (");
             BuildInsertParameters(entityToInsert, sb);
             sb.Append(") ");
-            sb.Append("values");
+            sb.Append("VALUES");
             sb.Append(" (");
             BuildInsertValues(entityToInsert, sb);
             sb.Append(")");
@@ -314,7 +314,7 @@
                 {
                     keyHasPredefinedValue = true;
                 }
-                sb.Append(";select '").Append(idProps.First().GetValue(entityToInsert, null)).Append("' as id");
+                sb.Append(";select '").Append(idProps.First().GetValue(entityToInsert, null)).Append("' AS id");
             }
 
             if ((keytype == typeof(int) || keytype == typeof(long)) && Convert.ToInt64(idProps.First().GetValue(entityToInsert, null)) == 0)
@@ -327,7 +327,7 @@
             }
 
             if (Debugger.IsAttached)
-                Debug.WriteLine(String.Format("Insert: {0}", sb));
+                Debug.WriteLine(String.Format("INSERT: {0}", sb));
 
             var r = await connection.QueryAsync(sb.ToString(), entityToInsert, transaction, commandTimeout).ConfigureAwait(false);
 

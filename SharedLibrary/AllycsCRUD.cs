@@ -315,7 +315,7 @@
                 {
                     keyHasPredefinedValue = true;
                 }
-                sb.Append(";select '").Append(idProps.First().GetValue(entityToInsert, null)).Append("' as id");
+                sb.Append(";SELECT '").Append(idProps.First().GetValue(entityToInsert, null)).Append("' AS id");
             }
 
             if ((keytype == typeof(int) || keytype == typeof(long)) && Convert.ToInt64(idProps.First().GetValue(entityToInsert, null)) == 0)
@@ -328,7 +328,7 @@
             }
 
             if (Debugger.IsAttached)
-                Debug.WriteLine(String.Format("Insert: {0}", sb));
+                Debug.WriteLine(String.Format("INSERT: {0}", sb));
 
             var r = connection.Query(sb.ToString(), entityToInsert, transaction, true, commandTimeout);
 
@@ -387,7 +387,7 @@
             if (sb.ToString().EndsWith(", "))
                 sb.Remove(sb.Length - 2, 2);
             sb.Append(") ");
-            sb.Append("values");
+            sb.Append("VALUES");
             sb.Append(" (");
             for (var i = 0; i < props.Length; i++)
             {
@@ -450,15 +450,15 @@
                 name = GetTableName(entityToUpdate);
 
             var sb = new StringBuilder();
-            sb.AppendFormat("update {0}", name);
+            sb.AppendFormat("UPDATE {0}", name);
 
-            sb.AppendFormat(" set ");
+            sb.AppendFormat(" SET ");
             BuildUpdateSet(entityToUpdate, sb);
             sb.Append(" WHERE ");
             BuildWhere(sb, idProps, entityToUpdate);
 
             if (Debugger.IsAttached)
-                Debug.WriteLine(String.Format("Update: {0}", sb));
+                Debug.WriteLine(String.Format("UPDATE: {0}", sb));
             return connection.Execute(sb.ToString(), entityToUpdate, transaction, commandTimeout);
         }
 
