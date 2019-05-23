@@ -185,5 +185,75 @@
             connection.ConnClose();
             return result;
         }
+        /// <summary>
+        /// <para>自定义表名为空或者null取默认表名称</para>
+        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
+        /// <para>conditions 使用方式: "WHERE name='bob'" or "WHERE age>=@Age" -非必须</para>
+        /// <para>orderby 使用方式: "lastname, age desc" -非必须 - 默认Key</para>
+        /// <para>parameters 使用方式: new { Age = 15 } -非必须</para>
+        /// <para>支持事物和命令超时设定</para>
+        /// <para>返回符合conditions条件和parameters过滤的IEnumerable<T>类型</para>
+        /// </summary>
+        /// <typeparam name="T">数据类型</typeparam>
+        /// <param name="connection">自链接</param>
+        /// <param name="pageNumber">页码</param>
+        /// <param name="rowsPerPage">每页条数</param>
+        /// <param name="conditions">SqlWhere条件</param>
+        /// <param name="orderby">排序字段</param>
+        /// <param name="parameters">参数化</param>
+        /// <param name="transaction">事物</param>
+        /// <param name="commandTimeout">超时</param>
+        /// <returns>返回符合conditions条件和parameters过滤的IEnumerable<T>类型</returns>
+        public static async Task<IEnumerable<T>> GetListPagedAsync<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, string tableName = null, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            if (string.IsNullOrEmpty(_getPagedListSql))
+                throw new Exception("GetListPage 不支持当前sql语言");
+
+            if (pageNumber < 1)
+                throw new Exception("页码从1开始");
+
+            var currenttype = typeof(T);
+            var idProps = GetIdProperties(currenttype).ToList();
+            if (!idProps.Any())
+                throw new ArgumentException("实体类至少包含一个主键[Key]");
+
+            var name = tableName;
+            if (string.IsNullOrWhiteSpace(name))
+                name = GetTableName(currenttype);
+
+            var sb = new StringBuilder();
+            var query = _getPagedListSql;
+            if (string.IsNullOrEmpty(orderby))
+            {
+                orderby = GetColumnName(idProps.First());
+            }
+            //创建一个空的基本类型属性的新实例
+            BuildSelect(sb, GetScaffoldableProperties((T)Activator.CreateInstance(typeof(T))).ToArray());
+            query = query.Replace("{SelectColumns}", sb.ToString());
+            query = query.Replace("{TableName}", name);
+            query = query.Replace("{PageNumber}", pageNumber.ToString());
+            query = query.Replace("{RowsPerPage}", rowsPerPage.ToString());
+            query = query.Replace("{OrderBy}", orderby);
+            query = query.Replace("{WhereClause}", conditions);
+            query = query.Replace("{Offset}", ((pageNumber - 1) * rowsPerPage).ToString());
+
+            if (Debugger.IsAttached)
+                Debug.WriteLine(String.Format("GetListPaged<{0}>: {1}", currenttype, query));
+            IEnumerable<T> result;
+            if (_isUpToLow)
+            {
+                using (var sdr = await connection.ExecuteReaderAsync(query, parameters, transaction, commandTimeout).ConfigureAwait(false))
+                {
+                    result = populate.GetList<T>(sdr);
+                }
+            }
+            else
+            {
+                result = await connection.QueryAsync<T>(query, parameters, transaction, commandTimeout).ConfigureAwait(false);
+            }
+            connection.ConnClose();
+            return result;
+        }
+
     }
 }
