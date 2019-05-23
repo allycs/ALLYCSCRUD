@@ -69,12 +69,12 @@
             T result;
             if (_isUpToLow)
             {
-                var sdr = await connection.ExecuteReaderAsync(sb.ToString(), dynParms, transaction, commandTimeout);
+                var sdr = await connection.ExecuteReaderAsync(sb.ToString(), dynParms, transaction, commandTimeout).ConfigureAwait(false);
                 result = populate.GetSingle<T>(sdr);
             }
             else
             {
-                var query = await connection.QueryAsync<T>(sb.ToString(), dynParms, transaction, commandTimeout);
+                var query = await connection.QueryAsync<T>(sb.ToString(), dynParms, transaction, commandTimeout).ConfigureAwait(false);
                 result = query.FirstOrDefault();
             }
 
@@ -125,12 +125,12 @@
             IEnumerable<T> result;
             if (_isUpToLow)
             {
-                var sdr = await connection.ExecuteReaderAsync(sb.ToString(), whereConditions, transaction, commandTimeout);
+                var sdr = await connection.ExecuteReaderAsync(sb.ToString(), whereConditions, transaction, commandTimeout).ConfigureAwait(false);
                 result = populate.GetList<T>(sdr);
             }
             else
             {
-                result = await connection.QueryAsync<T>(sb.ToString(), whereConditions, transaction, commandTimeout);
+                result = await connection.QueryAsync<T>(sb.ToString(), whereConditions, transaction, commandTimeout).ConfigureAwait(false);
             }
             connection.ConnClose();
             return result;
@@ -175,12 +175,12 @@
             IEnumerable<T> result;
             if (_isUpToLow)
             {
-                var sdr = await connection.ExecuteReaderAsync(sb.ToString(), parameters, transaction, commandTimeout);
+                var sdr = await connection.ExecuteReaderAsync(sb.ToString(), parameters, transaction, commandTimeout).ConfigureAwait(false);
                 result = populate.GetList<T>(sdr);
             }
             else
             {
-                result = await connection.QueryAsync<T>(sb.ToString(), parameters, transaction, commandTimeout);
+                result = await connection.QueryAsync<T>(sb.ToString(), parameters, transaction, commandTimeout).ConfigureAwait(false);
             }
             connection.ConnClose();
             return result;
@@ -254,6 +254,88 @@
             connection.ConnClose();
             return result;
         }
+        /// <summary>
+        /// <para>插入一条数据到数据库（支持简单类型）</para>
+        /// <para>自定义表名为空或者null取默认表名称</para>
+        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
+        /// <para>插入的主键属性为Id或者带有[Key]标签的属性名</para>
+        /// <para>带有 [Editable(false)]标签或者复杂的类型将会被忽略</para>
+        /// <para>支持事物和命令超时设定</para>
+        /// <para>返回主键Id或者自动生成的主键值</para>
+        /// </summary>
+        /// <typeparam name="TKey">主键类型</typeparam>
+        /// <param name="connection">自连接</param>
+        /// <param name="tableName">表名</param>
+        /// <param name="entityToInsert">插入的实体对象</param>
+        /// <param name="transaction">事物</param>
+        /// <param name="commandTimeout">超时</param>
+        /// <returns>返回主键Id或者自动生成的主键值</returns>
+        public static async Task<TKey> InsertAsync<TKey>(this IDbConnection connection, object entityToInsert, string tableName = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var idProps = GetIdProperties(entityToInsert).ToList();
 
+            if (!idProps.Any())
+                throw new ArgumentException("Insert<T> 仅支持实体类属性带有[Key]标签或属性名为Id");
+            if (idProps.Count > 1)
+                throw new ArgumentException("Insert<T> 仅支持唯一主键（属性带有[Key]或属性名为Id的");
+
+            var keyHasPredefinedValue = false;
+            var baseType = typeof(TKey);
+            var underlyingType = Nullable.GetUnderlyingType(baseType);
+            var keytype = underlyingType ?? baseType;
+            if (keytype != typeof(int) && keytype != typeof(uint) && keytype != typeof(long) && keytype != typeof(ulong) && keytype != typeof(short) && keytype != typeof(ushort) && keytype != typeof(Guid) && keytype != typeof(string))
+            {
+                throw new Exception("无效的返回类型");
+            }
+
+            var name = tableName;
+            if (string.IsNullOrWhiteSpace(name))
+                name = GetTableName(entityToInsert);
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("INSERT into {0}", name);
+            sb.Append(" (");
+            BuildInsertParameters(entityToInsert, sb);
+            sb.Append(") ");
+            sb.Append("values");
+            sb.Append(" (");
+            BuildInsertValues(entityToInsert, sb);
+            sb.Append(")");
+
+            if (keytype == typeof(Guid))
+            {
+                var guidvalue = (Guid)idProps.First().GetValue(entityToInsert, null);
+                if (guidvalue == Guid.Empty)
+                {
+                    var newguid = SequentialGuid();
+                    idProps[0].SetValue(entityToInsert, newguid, null);
+                }
+                else
+                {
+                    keyHasPredefinedValue = true;
+                }
+                sb.Append(";select '").Append(idProps.First().GetValue(entityToInsert, null)).Append("' as id");
+            }
+
+            if ((keytype == typeof(int) || keytype == typeof(long)) && Convert.ToInt64(idProps.First().GetValue(entityToInsert, null)) == 0)
+            {
+                sb.Append(";").Append(_getIdentitySql);
+            }
+            else
+            {
+                keyHasPredefinedValue = true;
+            }
+
+            if (Debugger.IsAttached)
+                Debug.WriteLine(String.Format("Insert: {0}", sb));
+
+            var r = await connection.QueryAsync(sb.ToString(), entityToInsert, transaction, commandTimeout).ConfigureAwait(false);
+
+            if (keytype == typeof(Guid) || keyHasPredefinedValue)
+            {
+                return (TKey)idProps[0].GetValue(entityToInsert, null);
+            }
+            return (TKey)r.First().id;
+        }
     }
 }
