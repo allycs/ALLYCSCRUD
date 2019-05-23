@@ -339,6 +339,21 @@
         }
         /// <summary>
         /// <para>插入一条数据到数据库（包含主键全插入生成）</para>
+        /// <para>默认类名对应的表名</para>
+        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
+        /// </summary>
+        /// <typeparam name="T">数据类型</typeparam>
+        /// <param name="connection">自连接</param>
+        /// <param name="entity">插入的数据对象</param>
+        /// <param name="transaction">事物</param>
+        /// <param name="commandTimeout">超时</param>
+        /// <returns></returns>
+        public static async Task<bool> InsertAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            return await InsertAsync(connection, null, entity, transaction, commandTimeout).ConfigureAwait(false);
+        }
+        /// <summary>
+        /// <para>插入一条数据到数据库（包含主键全插入生成）</para>
         /// <para>自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
         /// </summary>
