@@ -5,7 +5,6 @@
     using System.Data;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -185,6 +184,7 @@
             connection.ConnClose();
             return result;
         }
+
         /// <summary>
         /// <para>自定义表名为空或者null取默认表名称</para>
         /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
@@ -254,6 +254,7 @@
             connection.ConnClose();
             return result;
         }
+
         /// <summary>
         /// <para>插入一条数据到数据库（支持简单类型）</para>
         /// <para>自定义表名为空或者null取默认表名称</para>
@@ -337,6 +338,7 @@
             }
             return (TKey)r.First().id;
         }
+
         /// <summary>
         /// <para>插入一条数据到数据库（包含主键全插入生成）</para>
         /// <para>默认类名对应的表名</para>
@@ -352,6 +354,7 @@
         {
             return await InsertAsync(connection, null, entity, transaction, commandTimeout).ConfigureAwait(false);
         }
+
         /// <summary>
         /// <para>插入一条数据到数据库（包含主键全插入生成）</para>
         /// <para>自定义表名为空或者null取默认表名称</para>
@@ -401,5 +404,62 @@
             return true;
         }
 
+        /// <summary>
+        /// <para>更新一条或多条数据到数据库</para>
+        /// <para>默认类名一致的表名</para>
+        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
+        /// <para>更新Id或者带有[Key]标签的属性的值一致的对象</para>
+        /// <para>带有 [Editable(false)]标签或者复杂的类型将会被忽略</para>
+        /// <para>支持事物和命令超时设定</para>
+        /// <para>返回影响的行数</para>
+        /// </summary>
+        /// <param name="connection">自连接</param>
+        /// <param name="entityToUpdate">更新对象</param>
+        /// <param name="transaction">事物</param>
+        /// <param name="commandTimeout">超时</param>
+        /// <returns>返回影响的行数</returns>
+        public static async Task<int> UpdateAsync(this IDbConnection connection, object entityToUpdate, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            return await UpdateAsync(connection, null, entityToUpdate, transaction, commandTimeout).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// <para>更新一条或多条数据到数据库</para>
+        /// <para>自定义表名为空或者null取默认表名称</para>
+        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
+        /// <para>更新Id或者带有[Key]标签的属性的值一致的对象</para>
+        /// <para>带有 [Editable(false)]标签或者复杂的类型将会被忽略</para>
+        /// <para>支持事物和命令超时设定</para>
+        /// <para>返回影响的行数</para>
+        /// </summary>
+        /// <param name="connection">自连接</param>
+        /// <param name="tableName">表名</param>
+        /// <param name="entityToUpdate">更新对象</param>
+        /// <param name="transaction">事物</param>
+        /// <param name="commandTimeout">超时</param>
+        /// <returns>返回影响的行数</returns>
+        public static async Task<int> UpdateAsync(this IDbConnection connection, string tableName, object entityToUpdate, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var idProps = GetIdProperties(entityToUpdate).ToList();
+
+            if (!idProps.Any())
+                throw new ArgumentException("实体对象至少含有一个主键（以Id命名或者带有[Key]标签）");
+
+            var name = tableName;
+            if (string.IsNullOrWhiteSpace(name))
+                name = GetTableName(entityToUpdate);
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("UPDATE {0}", name);
+
+            sb.AppendFormat(" SET ");
+            BuildUpdateSet(entityToUpdate, sb);
+            sb.Append(" WHERE ");
+            BuildWhere(sb, idProps, entityToUpdate);
+
+            if (Debugger.IsAttached)
+                Debug.WriteLine(String.Format("UPDATE: {0}", sb));
+            return await connection.ExecuteAsync(sb.ToString(), entityToUpdate, transaction, commandTimeout).ConfigureAwait(false);
+        }
     }
 }
