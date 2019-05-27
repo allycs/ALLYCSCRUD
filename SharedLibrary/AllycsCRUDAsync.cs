@@ -461,5 +461,83 @@
                 Debug.WriteLine(String.Format("UPDATE: {0}", sb));
             return await connection.ExecuteAsync(sb.ToString(), entityToUpdate, transaction, commandTimeout).ConfigureAwait(false);
         }
+        /// <summary>
+        /// <para>删除一条或者多条数据符合传入的对象</para>
+        /// <para>-自定义表名为空或者null取默认表名称</para>
+        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
+        /// <para>支持事物和命令超时设定</para>
+        /// <para>返回影响的行数</para>
+        /// </summary>
+        /// <typeparam name="T">数据类型</typeparam>
+        /// <param name="connection">自连接</param>
+        /// <param name="tableName">表名</param>
+        /// <param name="entityToDelete">实体对象</param>
+        /// <param name="transaction">事物</param>
+        /// <param name="commandTimeout">超时</param>
+        /// <returns>返回影响的行数</returns>
+        public static async Task<int> DeleteAsync<T>(this IDbConnection connection, string tableName, T entityToDelete, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var idProps = GetIdProperties(entityToDelete).ToList();
+
+            if (!idProps.Any())
+                throw new ArgumentException("实体必须包含带有[Key]标签或者名称为Id的属性名");
+
+            var name = tableName;
+            if (string.IsNullOrWhiteSpace(name))
+                name = GetTableName(entityToDelete);
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("delete FROM {0}", name);
+
+            sb.Append(" WHERE ");
+            BuildWhere(sb, idProps, entityToDelete);
+
+            if (Debugger.IsAttached)
+                Debug.WriteLine(String.Format("Delete: {0}", sb));
+
+            return await connection.ExecuteAsync(sb.ToString(), entityToDelete, transaction, commandTimeout).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// <para>根据Id删除相应的数据（联合主键取第一个）</para>
+        /// <para>-自定义表名为空或者null取默认表名称</para>
+        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
+        /// <para>支持事物和命令超时设定</para>
+        /// <para>返回影响的行数</para>
+        /// </summary>
+        /// <typeparam name="T">数据类型</typeparam>
+        /// <param name="connection">自连接</param>
+        /// <param name="tableName">表名</param>
+        /// <param name="id">主键</param>
+        /// <param name="transaction">事物</param>
+        /// <param name="commandTimeout">超时</param>
+        /// <returns>返回影响的行数</returns>
+        public static async Task<int> DeleteAsync<T>(this IDbConnection connection, string tableName, object id, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var currenttype = typeof(T);
+            var idProps = GetIdProperties(currenttype).ToList();
+
+            if (!idProps.Any())
+                throw new ArgumentException("Delete<T> 仅支持实体类属性带有[Key]标签或属性名为Id");
+            if (idProps.Count > 1)
+                throw new ArgumentException("Delete<T> 仅支持唯一主键（属性带有[Key]或属性名为Id的");
+
+            var onlyKey = idProps[0];
+            var name = tableName;
+            if (string.IsNullOrWhiteSpace(name))
+                name = GetTableName(currenttype);
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("Delete FROM {0}", name);
+            sb.Append(" WHERE ").Append(GetColumnName(onlyKey)).Append(" = @Id");
+
+            var dynParms = new DynamicParameters();
+            dynParms.Add("@id", id);
+
+            if (Debugger.IsAttached)
+                Debug.WriteLine(String.Format("Delete<{0}> {1}", currenttype, sb));
+
+            return await connection.ExecuteAsync(sb.ToString(), dynParms, transaction, commandTimeout).ConfigureAwait(false);
+        }
     }
 }
