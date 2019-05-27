@@ -633,5 +633,95 @@
 
             return await connection.ExecuteAsync(sb.ToString(), parameters, transaction, commandTimeout).ConfigureAwait(false);
         }
+        /// <summary>
+        /// <para>默认统计数据条数</para>
+        /// <para>-自定义表名为空或者null取默认表名称</para>
+        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
+        /// <para>返回影响的行数</para>
+        /// <para>支持事物和命令超时设定</para>
+        /// </summary>
+        /// <typeparam name="T">数据类型</typeparam>
+        /// <param name="connection">自连接</param>
+        /// <param name="transaction">事物</param>
+        /// <param name="commandTimeout">超时</param>
+        /// <returns>返回影响的行数</returns>
+        public static async Task<int> RecordCountAsync<T>(this IDbConnection connection, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            return await connection.RecordCountAsync<T>(null, null, transaction, commandTimeout).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// <para>根据过滤条件统计数据条数</para>
+        /// <para>-自定义表名为空或者null取默认表名称</para>
+        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
+        /// <para>conditions 使用方式: "WHERE name='bob'" or "WHERE age>=@Age" -非必须</para>
+        /// <para>parameters 使用方式: new { Age = 15 } -非必须</para>
+        /// <para>返回影响的行数</para>
+        /// <para>支持事物和命令超时设定</para>
+        /// </summary>
+        /// <typeparam name="T">数据类型</typeparam>
+        /// <param name="connection">自连接</param>
+        /// <param name="tableName">表名</param>
+        /// <param name="conditions">SqlWhere条件</param>
+        /// <param name="parameters">参数化</param>
+        /// <param name="transaction">事物</param>
+        /// <param name="commandTimeout">超时</param>
+        /// <returns>返回影响的行数</returns>
+        public static async Task<int> RecordCountAsync<T>(this IDbConnection connection, string conditions, string tableName = null, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var currenttype = typeof(T);
+
+            var name = tableName;
+            if (string.IsNullOrWhiteSpace(name))
+                name = GetTableName(currenttype);
+
+            var sb = new StringBuilder();
+            sb.Append("SELECT COUNT(1)");
+            sb.AppendFormat(" FROM {0} ", name);
+            sb.Append(conditions);
+
+            if (Debugger.IsAttached)
+                Debug.WriteLine(String.Format("RecordCount<{0}>: {1}", currenttype, sb));
+
+            return await connection.ExecuteScalarAsync<int>(sb.ToString(), parameters, transaction, commandTimeout).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// <para>根据过滤条件统计数据条数</para>
+        /// <para>-自定义表名为空或者null取默认表名称</para>
+        /// <para>-表名可以用在类名上加入 [Table("你的表名")]标签的方式重写</para>
+        /// <para>whereConditions 使用方式: new {Category = 1, SubCategory=2} -非必须</para>
+        /// <para>返回影响的行数</para>
+        /// <para>支持事物和命令超时设定</para>
+        /// </summary>
+        /// <typeparam name="T">数据类型</typeparam>
+        /// <param name="connection">自连接</param>
+        /// <param name="tableName">表名</param>
+        /// <param name="whereConditions"></param>
+        /// <param name="transaction">事物</param>
+        /// <param name="commandTimeout">超时</param>
+        /// <returns>返回影响的行数</returns>
+        public static async Task<int> RecordCountAsync<T>(this IDbConnection connection, object whereConditions, string tableName = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var currenttype = typeof(T);
+            var name = tableName;
+            if (string.IsNullOrWhiteSpace(name))
+                name = GetTableName(currenttype);
+
+            var sb = new StringBuilder();
+            var whereprops = GetAllProperties(whereConditions).ToArray();
+            sb.Append("SELECT COUNT(1)");
+            sb.AppendFormat(" FROM {0}", name);
+            if (whereprops.Any())
+            {
+                sb.Append(" WHERE ");
+                BuildWhere(sb, whereprops, (T)Activator.CreateInstance(typeof(T)));
+            }
+
+            if (Debugger.IsAttached)
+                Debug.WriteLine(String.Format("RecordCount<{0}>: {1}", currenttype, sb));
+
+            return await connection.ExecuteScalarAsync<int>(sb.ToString(), whereConditions, transaction, commandTimeout).ConfigureAwait(false);
+        }
     }
 }
