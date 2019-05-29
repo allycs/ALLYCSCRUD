@@ -1,6 +1,10 @@
 # Dapper.ALLYCSCRUD - 基于Dapper的实战应用级扩展
 
-- 中文文档待补充；代码全中文注释，等不及可以直接看代码
+- 支持数据库以及schema用法在程序启动后写入该句
+```
+三个参数依次：数据库类型，schema名，是否大小写转换（AaBb转aa_bb）
+AllycsCRUD.SetDBType(DBType.PostgreSQL, "truckinfo",true);
+```
 ## 此扩展有以下几种方法（详细可看代码注释）：
 - Get(id) - 根据主键获取对象
 - GetList\<Type\>()  根据类型获取表中所有数据
@@ -17,6 +21,24 @@
 - RecordCount\<Type\>() 统计条数
 - RecordCount\<Type\>(不记名对象作为限定条件WHERE 例：new { Age = 15 }) 统计条数
 - RecordCount\<Type\>(string的where条件例：WHERE name='bob') 统计条数
+
+### 扩展方法的异步（支持.NET 4.5 以上以及 .NET CORE ）
+
+- GetAsync(id) - 根据主键获取对象
+- GetListAsync\<Type\>()  根据类型获取表中所有数据
+- GetListAsync\<Type\>(不记名对象作为限定条件WHERE 例：new { Age = 15 },非必传表名（可使用标签代替，此处有额外用处自行体会）)  根据限定条件获取表中符合的对象列表
+- GetListAsync\<Type\>(string的where条件例：WHERE name='bob',非必传表名（可使用标签代替，此处有额外用处自行体会））  根据限定条件获取表中符合的对象列表
+- GetListPagedAsync\<Type\>GetListPagedAsync<T>(页码从1开始, 每页数据量, string类型的限定条件"WHERE name='bob' ", string类型的排序"age desc", 非必传表名)  根据限定条件获取自定义分页数据
+- InsertAsync\<TKey\>(数据对象, 非必传表明)  注意\<TKey\>不是泛型例如：如果是自增则 conn.InsertAsync<int>(New User{}) 返回插入对象的主键值
+- InsertAsync<T>(T entity) 对象插入包含主键值 返回是否成功
+- UpdateAsync(entity) - 更新数据对象
+- DeleteAsync<Type>(id) - 根据主键删除
+- DeleteAsync(entity) - 根据数据对象删除
+- DeleteListAsync\<Type\>(不记名对象作为限定条件WHERE 例：new { Age = 15 })  根据限定条件删除
+- DeleteListAsync\<Type\>(string的where条件例：WHERE name='bob')  根据限定条件删除
+- RecordCountAsync\<Type\>() 统计条数
+- RecordCountAsync\<Type\>(不记名对象作为限定条件WHERE 例：new { Age = 15 }) 统计条数
+- RecordCountAsync\<Type\>(string的where条件例：WHERE name='bob') 统计条数
  
  ## 使用方式
  
