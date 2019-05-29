@@ -22,18 +22,18 @@
  
 1. 构建DbHelper类
 
-```
-      using System.Data;
-      using System.Data.SqlClient;
-      public class DbHelper
-      {
-          private static readonly string connStr = "Server=.;Database=demo;Uid=sa;Pwd=123456";
-          public static IDbConnection CreateConnection()
-          {
-              return new SqlConnection(connStr);
-          }
-      }
-```
+   ```
+         using System.Data;
+         using System.Data.SqlClient;
+         public class DbHelper
+         {
+             private static readonly string connStr = "Server=.;Database=demo;Uid=sa;Pwd=123456";
+             public static IDbConnection CreateConnection()
+             {
+                 return new SqlConnection(connStr);
+             }
+         }
+   ```
   
 2. 根据对象和相应条件方法获取数据，哪里用哪里取
    
@@ -53,8 +53,8 @@
  > 表名与类名不符或不能默认大小写转换;假定数据库表名为： "dt_customer" 
    
    1. 方式1：
-   
-    ` var members = DbHelper.CreateConnection().GetList<Member>(new { Name = "猜测", Age = 23  , "dt_customer"}); `
+
+   ` var members = DbHelper.CreateConnection().GetList<Member>(new { Name = "猜测", Age = 23  , "dt_customer"}); `
 
    2. 方式2：加attribute方式
    
