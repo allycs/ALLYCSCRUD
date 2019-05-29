@@ -1,4 +1,4 @@
-# Dapper.ALLYCSCRUD - 基于Dapper的应用级扩展
+# Dapper.ALLYCSCRUD - 基于Dapper的实战应用级扩展
 
 - 中文文档待补充；代码全中文注释，等不及可以直接看代码
 ## 此扩展有以下几种方法：
