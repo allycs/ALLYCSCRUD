@@ -7,8 +7,8 @@
 - GetList\<Type\>(不记名对象作为限定条件WHERE 例：new { Age = 15 },非必传表名（可使用标签代替，此处有额外用处自行体会）)  根据限定条件获取表中符合的对象列表
 - GetList\<Type\>(string的where条件例：WHERE name='bob',非必传表名（可使用标签代替，此处有额外用处自行体会））  根据限定条件获取表中符合的对象列表
 - GetListPaged\<Type\>GetListPagedAsync<T>(页码从1开始, 每页数据量, string类型的限定条件"WHERE name='bob' ", string类型的排序"age desc", 非必传表名)  根据限定条件获取自定义分页数据
-- InsertAsync\<TKey\>(数据对象, 非必传表明)  注意\<TKey\>不是泛型例如：如果是自增则 conn.InsertAsync<int>(New User{}) 返回插入对象的主键值
-- InsertAsync<T>(T entity) 对象插入包含主键值 返回是否成功
+- Insert\<TKey\>(数据对象, 非必传表明)  注意\<TKey\>不是泛型例如：如果是自增则 conn.InsertAsync<int>(New User{}) 返回插入对象的主键值
+- Insert<T>(T entity) 对象插入包含主键值 返回是否成功
 - Update(entity) - 更新数据对象
 - Delete<Type>(id) - 根据主键删除
 - Delete(entity) - 根据数据对象删除
