@@ -23,7 +23,6 @@
  1. 构建DbHelper类
  
  '''
-     
      using System.Data;
      using System.Data.SqlClient;
      public class DbHelper
@@ -50,27 +49,23 @@
  
  > 若配置默认（大小写转换AaBb=>aa_bb）表名默认
  
- '''
-   var members = DbHelper.CreateConnection().GetList<Member>(new { Name = "猜测", Age = 23 });
-  '''
+   'var members = DbHelper.CreateConnection().GetList<Member>(new { Name = "猜测", Age = 23 });'
  
  > 表名与类名不符或不能默认大小写转换;假定数据库表名为： "dt_customer" 
    
    1. 方式1：
-   '''
-   var members = DbHelper.CreateConnection().GetList<Member>(new { Name = "猜测", Age = 23  , "dt_customer"});
+   'var members = DbHelper.CreateConnection().GetList<Member>(new { Name = "猜测", Age = 23  , "dt_customer"});'
 
-   '''
    2. 方式2：加attribute方式
    '''
-   [Table("dt_customer")]
-   public class MemberInfo
-   {
-       public int Id { get; set; }
-       public string Name { get; set; }
-       public int Age { get; set; }
-   } 
-   var members = DbHelper.CreateConnection().GetList<Member>(new { Name = "猜测", Age = 23 });
+     [Table("dt_customer")]
+     public class MemberInfo
+     {
+         public int Id { get; set; }
+         public string Name { get; set; }
+         public int Age { get; set; }
+     } 
+     var members = DbHelper.CreateConnection().GetList<Member>(new { Name = "猜测", Age = 23 });
    '''
  3. 表中的属性名称的使用方式与表名类似：[Column("strFirstName")]
    
