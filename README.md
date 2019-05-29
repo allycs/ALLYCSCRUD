@@ -4,11 +4,13 @@
 ## 此扩展有以下几种方法：
 - Get(id) - 根据主键获取对象
 
-- 'GetList<Type>()' - 根据类型获取表中所有数据
+- GetList\<Type\>()  根据类型获取表中所有数据
 
-- 'GetList<Type>(不记名对象作为限定条件WHERE)' - 根据限定条件获取表中符合的对象列表
+- GetList\<Type\>(不记名对象作为限定条件WHERE 例：new { Age = 15 },非必传表名（可使用标签代替，此处有额外用处自行体会）)  根据限定条件获取表中符合的对象列表
 
+- GetList\<Type\>(string的where条件例：WHERE name='bob',非必传表名（可使用标签代替，此处有额外用处自行体会））  根据限定条件获取表中符合的对象列表
 
+- GetListPaged\<Type\>GetListPagedAsync<T>(页码从1开始, 每页数据量, string类型的限定条件"WHERE name='bob' ", string类型的排序"age desc", 非必传表名)  根据限定条件获取自定义分页数据
  ## 根据ID获取对象
 `
  public static T Get<T>(this IDbConnection connection, int id)
