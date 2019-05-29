@@ -53,9 +53,11 @@
  > 表名与类名不符或不能默认大小写转换;假定数据库表名为： "dt_customer" 
    
    1. 方式1：
+   
     ` var members = DbHelper.CreateConnection().GetList<Member>(new { Name = "猜测", Age = 23  , "dt_customer"}); `
 
    2. 方式2：加attribute方式
+   
    ```
      [Table("dt_customer")]
      public class MemberInfo
