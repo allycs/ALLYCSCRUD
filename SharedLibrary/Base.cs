@@ -16,7 +16,7 @@
     {
         static AllycsCRUD()
         {
-            SetDBType();
+            //SetDBType();
         }
 
         private static DBType _dialect;
@@ -71,6 +71,7 @@
                 _schema = schema;
             }
             _isUpToLow = isUpToLow;
+            SetDBType();
         }
 
         /// <summary>
