@@ -399,7 +399,7 @@
                 sb.Remove(sb.Length - 2, 2);
             sb.Append(")");
 
-            _ = await connection.QueryAsync(sb.ToString(), entity, transaction, commandTimeout).ConfigureAwait(false);
+            _ = await connection.ExecuteAsync(sb.ToString(), entity, transaction, commandTimeout).ConfigureAwait(false);
             return true;
         }
 
