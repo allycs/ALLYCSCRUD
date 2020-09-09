@@ -170,16 +170,8 @@
 
             if (Debugger.IsAttached)
                 Debug.WriteLine(String.Format("GetList<{0}>: {1}", currenttype, sb));
-            IEnumerable<T> result;
-            if (_isUpToLow)
-            {
-                var sdr = await connection.ExecuteReaderAsync(sb.ToString(), parameters, transaction, commandTimeout).ConfigureAwait(false);
-                result = populate.GetList<T>(sdr);
-            }
-            else
-            {
-                result = await connection.QueryAsync<T>(sb.ToString(), parameters, transaction, commandTimeout).ConfigureAwait(false);
-            }
+            IEnumerable<T> result = await connection.QueryAsync<T>(sb.ToString(), parameters, transaction, commandTimeout).ConfigureAwait(false);
+
             connection.ConnClose();
             return result;
         }
@@ -238,18 +230,8 @@
 
             if (Debugger.IsAttached)
                 Debug.WriteLine(String.Format("GetListPaged<{0}>: {1}", currenttype, query));
-            IEnumerable<T> result;
-            if (_isUpToLow)
-            {
-                using (var sdr = await connection.ExecuteReaderAsync(query, parameters, transaction, commandTimeout).ConfigureAwait(false))
-                {
-                    result = populate.GetList<T>(sdr);
-                }
-            }
-            else
-            {
-                result = await connection.QueryAsync<T>(query, parameters, transaction, commandTimeout).ConfigureAwait(false);
-            }
+            IEnumerable<T> result= await connection.QueryAsync<T>(query, parameters, transaction, commandTimeout).ConfigureAwait(false);
+
             connection.ConnClose();
             return result;
         }
