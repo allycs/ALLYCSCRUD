@@ -440,7 +440,8 @@
                 tableName = GetFieldNameByUpperToLower(tableName);
             if (_hasSchema)
                 tableName = _schema + "." + tableName;
-            TableNames[type] = tableName;
+            TableNames.Add(type, tableName);
+            //TableNames[type] = tableName;
 
             return tableName;
         }

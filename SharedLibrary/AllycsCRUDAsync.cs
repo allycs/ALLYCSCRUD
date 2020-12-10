@@ -120,16 +120,16 @@
 
             if (Debugger.IsAttached)
                 Debug.WriteLine(String.Format("GetList<{0}>: {1}", currenttype, sb));
-            IEnumerable<T> result;
-            if (_isUpToLow)
-            {
-                var sdr = await connection.ExecuteReaderAsync(sb.ToString(), whereConditions, transaction, commandTimeout).ConfigureAwait(false);
-                result = populate.GetList<T>(sdr);
-            }
-            else
-            {
-                result = await connection.QueryAsync<T>(sb.ToString(), whereConditions, transaction, commandTimeout).ConfigureAwait(false);
-            }
+            IEnumerable<T> result = await connection.QueryAsync<T>(sb.ToString(), whereConditions, transaction, commandTimeout).ConfigureAwait(false);
+            //if (_isUpToLow)
+            //{
+            //    var sdr = await connection.ExecuteReaderAsync(sb.ToString(), whereConditions, transaction, commandTimeout).ConfigureAwait(false);
+            //    result = populate.GetList<T>(sdr);
+            //}
+            //else
+            //{
+            //    result = await connection.QueryAsync<T>(sb.ToString(), whereConditions, transaction, commandTimeout).ConfigureAwait(false);
+            //}
             connection.ConnClose();
             return result;
         }
